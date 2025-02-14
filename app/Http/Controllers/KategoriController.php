@@ -1,65 +1,58 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\kategori;
+use Alert;
+use App\Models\Kategori;
 use Illuminate\Http\Request;
+// Pastikan SweetAlert di-import
 
 class KategoriController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Tampilkan semua kategori
     public function index()
     {
-        //
+        $kategori = Kategori::all();
+        return view('admin.kategori.index', compact('kategori'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Simpan kategori baru
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'kategori' => 'required|string|max:255',
+        ]);
+
+        Kategori::create($request->all());
+
+        Alert::toast('Kategori berhasil ditambahkan!', 'success')->autoClose(3000);
+        return redirect()->route('admin.kategori.index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(kategori $kategori)
+    // Tampilkan form edit (opsional kalau pakai AJAX, bisa dihapus)
+    public function edit(Kategori $kategori)
     {
-        //
+        return response()->json($kategori);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(kategori $kategori)
+    // Update kategori
+    public function update(Request $request, Kategori $kategori)
     {
-        //
+        $request->validate([
+            'kategori' => 'required|string|max:255',
+        ]);
+
+        $kategori->update($request->all());
+
+        Alert::toast('Kategori berhasil diperbarui!', 'success')->autoClose(3000);
+        return redirect()->route('admin.kategori.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, kategori $kategori)
+    // Hapus kategori
+    public function destroy(Kategori $kategori)
     {
-        //
-    }
+        $kategori->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(kategori $kategori)
-    {
-        //
+        Alert::toast('Kategori berhasil dihapus!', 'success')->autoClose(3000);
+        return redirect()->route('admin.kategori.index');
     }
 }

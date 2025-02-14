@@ -1,50 +1,126 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-<div class="flex items-center justify-center w-full h-screen bg-gray-100 absolute top-0 left-0">
-    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold text-center text-gray-800">{{ __('Login') }}</h2>
-        <p class="text-sm text-center text-gray-500 mb-6">Welcome back! Please login to your account.</p>
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700">{{ __('Email Address') }}</label>
-                <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror">
-                @error('email')
-                <span class="text-sm text-red-600 mt-1">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
-            </div>
-            <div class="mb-4">
-                <label for="password" class="block text-sm font-medium text-gray-700">{{ __('Password') }}</label>
-                <input id="password" type="password" name="password" required autocomplete="current-password"
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror">
-                @error('password')
-                <span class="text-sm text-red-600 mt-1">
-                    <strong>{{ $message }}</strong>
-                </span>
-                @enderror
-            </div>
-            <div class="flex items-center justify-between mb-4">
-                <label class="inline-flex items-center">
-                    <input type="checkbox" name="remember" class="form-checkbox text-blue-600 border-gray-300 rounded">
-                    <span class="ml-2 text-sm text-gray-600">{{ __('Remember Me') }}</span>
-                </label>
-                @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:underline">
-                    {{ __('Forgot Your Password?') }}
-                </a>
-                @endif
-            </div>
-            <div>
-                <button type="submit" class="w-full px-4 py-2 text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-                    {{ __('Login') }}
-                </button>
-            </div>
-        </form>
+<head>
 
+    <meta charset="utf-8" />
+    <title>EventWay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc." />
+    <meta name="author" content="Zoyothemes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+
+    <!-- App css -->
+    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
+
+    <!-- Icons -->
+    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body class="bg-color">
+
+    <!-- Begin page -->
+    <div class="container-fluid">
+        <div class="row vh-100">
+            <div class="col-12">
+                <div class="p-0">
+                    <div class="row d-flex align-items-center">
+                        <div class="col-md-6 col-xl-6 col-lg-6">
+                            <div class="row">
+                                <div class="col-md-6 mx-auto">
+                                    <div class="mb-0 border-0">
+                                        <div class="p-0">
+                                            <div class="text-center">
+                                                <div class="mb-4">
+                                                    <a href="{{ route('home') }}" class="auth-logo">
+                                                        <img src="{{ asset('assets/images/logo-dark.png') }}"
+                                                            alt="logo-dark" class="mx-auto" height="28" />
+                                                    </a>
+                                                </div>
+
+                                                <div class="auth-title-section mb-3">
+                                                    <h3 class="text-dark fs-20 fw-medium mb-2">Welcome back</h3>
+                                                    <p class="text-dark text-capitalize fs-14 mb-0">Please enter your
+                                                        details.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-0">
+                                            <form action="{{ route('login') }}" method="POST" class="my-4">
+                                                @csrf
+                                                <div class="form-group mb-3">
+                                                    <label for="email" class="form-label">Email address</label>
+                                                    <input type="email" class="form-control form-control-lg"
+                                                        placeholder="Email" aria-label="Email" name="email">
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="password" class="form-label">Password</label>
+                                                    <input type="password" class="form-control form-control-lg"
+                                                        placeholder="Password" aria-label="Password" name="password">
+
+                                                </div>
+
+                                                {{-- <div class="form-group d-flex mb-3">
+                                                        <div class="col-sm-6">
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" id="checkbox-signin" checked>
+                                                                <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-6 text-end">
+                                                            <a class='text-muted fs-14' href='auth-recoverpw.html'>Forgot password?</a>
+                                                        </div>
+                                                    </div> --}}
+
+                                                <div class="form-group mb-0 row">
+                                                    <div class="col-12">
+                                                        <div class="d-grid">
+                                                            <button class="btn btn-primary" type="submit"> Log In
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <div class="text-center text-muted">
+                                                <p class="mb-0">Don't have an account ?<a
+                                                        class='text-primary ms-2 fw-medium'
+                                                        href='auth-register.html'>Sign Up</a></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-6 col-xl-6 col-lg-6 p-0 vh-100 d-flex justify-content-center account-page-bg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
-@endsection
+    <!-- END wrapper -->
+
+    <!-- Vendor -->
+    <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/waypoints/lib/jquery.waypoints.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/jquery.counterup/jquery.counterup.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
+
+    <!-- App js-->
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+
+</body>
+
+</html>

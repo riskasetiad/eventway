@@ -27,7 +27,7 @@ return new class extends Migration
             $table->longText('deskripsi');
             $table->time('waktu_mulai');
             $table->time('waktu_selesai');
-            $table->enum('status', ['pending', 'approve', 'reject'])->default('pending');
+            $table->enum('status', ['Pending', 'Approved', 'Rejected'])->default('Pending');
             $table->string('slug');
             $table->timestamps();
         });
