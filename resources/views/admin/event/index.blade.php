@@ -3,11 +3,8 @@
 @section('content')
     <div class="container p-4">
         <h4>Daftar Event</h4>
-        <a href="{{ route('admin.events.create') }}" class="btn btn-success mb-3">Tambah Event</a>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <a href="{{ auth()->user()->can('view_admin') ? route('admin.events.create') : route('events.create') }}"
+            class="btn btn-success mb-3">Tambah Event</a>
 
         <table class="table table-bordered table-striped text-center align-middle">
             <thead>
@@ -42,7 +39,9 @@
                         <td class="text-center">
                             <div class="d-flex align-items-center justify-content-center gap-2">
                                 @if ($event->status === 'Rejected' && $event->user_id === auth()->id())
-                                    <form action="{{ route('events.reapply', $event->id) }}" method="POST">
+                                    <form
+                                        action="{{ auth()->user()->can('view_admin') ? route('admin.events.reapply', $event->id) : route('events.reapply', $event->id) }}"
+                                        method="POST">
                                         @csrf
                                         <button type="submit" class="btn btn-primary btn-sm">
                                             Ajukan Ulang

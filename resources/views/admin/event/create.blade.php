@@ -1,14 +1,13 @@
 @extends('layouts.admin.template')
 
 @section('content')
-    <!-- TinyMCE CDN -->
-
     <div class="container p-4">
         <h4 class="mb-4">Tambah Event Baru</h4>
         <script src="https://cdn.tiny.cloud/1/3lu615xty82ph7mid1dymfmnkietg5mezg5n3tlfytz4g5i4/tinymce/7/tinymce.min.js"
             referrerpolicy="no-referrer-when-downgrade"></script>
 
-        <form action="{{ route('admin.events.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ auth()->user()->can('view_admin') ? route('admin.events.store') : route('events.store') }}"
+            method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-3">
@@ -113,7 +112,7 @@
             </div>
 
             <button type="submit" class="btn btn-success">Simpan Event</button>
-            <a href="{{ route('admin.events.index') }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ route('events.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 

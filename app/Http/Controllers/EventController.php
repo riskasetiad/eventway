@@ -14,7 +14,14 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = Event::with('kategori')->latest()->get();
+        if (auth()->user()->can('view_admin')) {
+            // Admin bisa melihat semua event
+            $events = Event::with('kategori')->latest()->get();
+        } else {
+            // User hanya bisa melihat event yang mereka buat
+            $events = Event::with('kategori')->where('user_id', auth()->id())->latest()->get();
+        }
+
         return view('admin.event.index', compact('events'));
     }
 
@@ -26,27 +33,30 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-
+        // Validasi data
         $request->validate([
             'title'         => 'required|string|max:255',
             'image'         => 'required|image|mimes:jpeg,png,jpg|max:10240',
-            'kategori_id'   => 'required',
+            'kategori_id'   => 'required|exists:kategoris,id',
             'tgl_mulai'     => 'required|date',
             'tgl_selesai'   => 'required|date|after_or_equal:tgl_mulai',
             'kota'          => 'required|string',
             'lokasi'        => 'required|string',
             'url_lokasi'    => 'required|url',
             'deskripsi'     => 'required|string',
-            'waktu_mulai'   => 'required',
-            'waktu_selesai' => 'required|after:waktu_mulai',
+            'waktu_mulai'   => 'required|date_format:H:i',
+            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
         ]);
 
+        // Simpan gambar dengan path yang benar
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads'), $imageName);
+        $imagePath = 'uploads/' . $imageName;
 
+        // Simpan data event
         $event = Event::create([
-            'user_id'       => Auth::id() ?? 1,
-            'image'         => 'uploads/' . $imageName,
+            'user_id'       => Auth::id(),
+            'image'         => $imagePath,
             'title'         => $request->title,
             'kategori_id'   => $request->kategori_id,
             'tgl_mulai'     => $request->tgl_mulai,
@@ -61,14 +71,17 @@ class EventController extends Controller
             'slug'          => Str::slug($request->title),
         ]);
 
-        // // Kirim notifikasi ke semua admin
-        // $admins = User::where('role', 'admin')->get();
-        // foreach ($admins as $admin) {
-        //     $admin->notify(new EventSubmissionNotification($event));
-        // }
+        // Kirim notifikasi ke admin jika ada sistem notifikasi
+        // $admins = User::role('admin')->get();
+        // Notification::send($admins, new EventSubmissionNotification($event));
 
+        // Tampilkan notifikasi sukses dengan SweetAlert
         Alert::toast('Event berhasil ditambahkan!', 'success')->autoClose(3000);
-        return redirect()->route('events.index');
+
+        // Redirect ke halaman event list user atau admin
+        return auth()->user()->can('view_admin')
+        ? redirect()->route('admin.events.index')->with('success', 'Event berhasil ditambahkan!')
+        : redirect()->route('events.index')->with('success', 'Event berhasil ditambahkan!');
     }
 
     public function edit(Event $event)
@@ -104,7 +117,7 @@ class EventController extends Controller
         $event->update($request->except('image'));
 
         Alert::toast('Event berhasil diperbarui!', 'success')->autoClose(3000);
-        return redirect()->route('admin.events.index');
+        return redirect()->route('events.index');
     }
 
     public function destroy(Event $event)
@@ -112,7 +125,7 @@ class EventController extends Controller
         $event->delete();
 
         Alert::toast('Event berhasil dihapus!', 'success')->autoClose(3000);
-        return redirect()->route('admin.events.index');
+        return redirect()->route('events.index');
     }
 
     public function reapply(Event $event)

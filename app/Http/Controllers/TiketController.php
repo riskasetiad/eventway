@@ -11,13 +11,18 @@ class TiketController extends Controller
 {
     public function index()
     {
-        $tikets = Tiket::with('event')->get();
+        $tikets = Tiket::whereHas('event', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->get();
         return view('admin.tiket.index', compact('tikets'));
     }
 
     public function create()
     {
-        $events = Event::where('status', 'approved')->get(); // Hanya event yang disetujui
+        $events = Event::where('status', 'approved')
+            ->where('user_id', auth()->id()) // Hanya event milik user
+            ->get();
+
         return view('admin.tiket.create', compact('events'));
     }
 
@@ -26,8 +31,11 @@ class TiketController extends Controller
         $request->validate([
             'event_id' => [
                 'required',
-                Rule::exists('events', 'id')->where('status', 'approved'),
-            ], 'title' => 'required|string|max:255',
+                Rule::exists('events', 'id')
+                    ->where('status', 'approved')
+                    ->where('user_id', auth()->id()), // Hanya event milik user
+            ],
+            'title'    => 'required|string|max:255',
             'harga'    => 'required|integer',
             'stok'     => 'required|integer',
             'status'   => 'required|in:tersedia,habis',
@@ -36,7 +44,7 @@ class TiketController extends Controller
         Tiket::create($request->all());
 
         Alert::toast('Tiket berhasil ditambahkan!', 'success')->autoClose(3000);
-        return redirect()->route('admin.tiket.index');
+        return redirect()->route('tiket.index');
     }
 
     public function show(Tiket $tiket)
@@ -46,33 +54,38 @@ class TiketController extends Controller
 
     public function edit(Tiket $tiket)
     {
-        $events = Event::where('status', 'approved')->get(); // Hanya event yang disetujui
+        $events = Event::where('status', 'approved')
+            ->where('user_id', auth()->id()) // Hanya event milik user
+            ->get();
+
         return view('admin.tiket.edit', compact('tiket', 'events'));
     }
-
     public function update(Request $request, Tiket $tiket)
-    {
-        $request->validate([
-            'event_id' => [
-                'required',
-                Rule::exists('events', 'id')->where('status', 'approved'),
-            ], 'title' => 'required|string|max:255',
-            'harga'    => 'required|integer',
-            'stok'     => 'required|integer',
-            'status'   => 'required|in:tersedia,habis',
-        ]);
+{
+    $request->validate([
+        'event_id' => [
+            'required',
+            Rule::exists('events', 'id')
+                ->where('status', 'approved')
+                ->where('user_id', auth()->id()), // Hanya event milik user
+        ],
+        'title'  => 'required|string|max:255',
+        'harga'  => 'required|integer',
+        'stok'   => 'required|integer',
+        'status' => 'required|in:tersedia,habis',
+    ]);
 
-        $tiket->update($request->all());
+    $tiket->update($request->all());
 
-        Alert::toast('Tiket berhasil diperbarui!', 'success')->autoClose(3000);
-        return redirect()->route('admin.tiket.index');
-    }
+    Alert::toast('Tiket berhasil diperbarui!', 'success')->autoClose(3000);
+    return redirect()->route('tiket.index');
+}
 
     public function destroy(Tiket $tiket)
     {
         $tiket->delete();
 
         Alert::toast('Tiket berhasil dihapus!', 'success')->autoClose(3000);
-        return redirect()->route('admin.tiket.index');
+        return redirect()->route('tiket.index');
     }
 }

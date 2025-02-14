@@ -25,7 +25,7 @@ class KategoriController extends Controller
         Kategori::create($request->all());
 
         Alert::toast('Kategori berhasil ditambahkan!', 'success')->autoClose(3000);
-        return redirect()->route('admin.kategori.index');
+        return redirect()->route('kategori.index');
     }
 
     // Tampilkan form edit (opsional kalau pakai AJAX, bisa dihapus)
@@ -44,7 +44,7 @@ class KategoriController extends Controller
         $kategori->update($request->all());
 
         Alert::toast('Kategori berhasil diperbarui!', 'success')->autoClose(3000);
-        return redirect()->route('admin.kategori.index');
+        return redirect()->route('kategori.index');
     }
 
     // Hapus kategori
@@ -53,6 +53,6 @@ class KategoriController extends Controller
         $kategori->delete();
 
         Alert::toast('Kategori berhasil dihapus!', 'success')->autoClose(3000);
-        return redirect()->route('admin.kategori.index');
+        return redirect()->route('kategori.index');
     }
 }

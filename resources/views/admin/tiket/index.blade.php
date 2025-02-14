@@ -2,11 +2,8 @@
 @section('content')
     <div class="container p-4">
         <h4>Daftar Tiket</h4>
-        <a href="{{ route('admin.tiket.create') }}" class="btn btn-success mb-3">Tambah Tiket</a>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <a href="{{ auth()->user()->can('view_admin') ? route('admin.tiket.create') : route('tiket.create') }}"
+            class="btn btn-success mb-3">Tambah Event</a>
 
         <table class="table table-bordered">
             <thead>
