@@ -24,6 +24,11 @@ class Event extends Model
     {
         return $this->belongsTo(Kategori::class);
     }
+    
+    public function tikets()
+    {
+        return $this->hasMany(Tiket::class);
+    }
 
     // Auto-generate slug saat membuat event baru
     protected static function booted()

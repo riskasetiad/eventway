@@ -48,13 +48,7 @@
                                 <td class="text-center align-middle">{{ $index + 1 }}</td>
                                 <td class="text-center align-middle">{{ $item->kategori }}</td>
                                 <td class="text-center align-middle">
-                                    {{-- <!-- Tombol Edit -->
-                                    <button class="btn btn-primary btn-sm edit-btn" data-id="{{ $item->id }}"
-                                        data-kategori="{{ $item->kategori }}"
-                                        onclick="console.log('ID:', this.dataset.id, 'Kategori:', this.dataset.kategori)">
-                                        Edit
-                                    </button> --}}
-
+    
                                     <!-- Tombol Hapus -->
                                     <form action="{{ route('kategori.destroy', $item->id) }}" method="POST"
                                         class="delete-form">
@@ -76,44 +70,3 @@
     </div>
 @endsection
 
-{{-- @section('scripts')
-    <script>
-        document.querySelectorAll('.edit-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                document.getElementById('form-title').innerText = 'Edit Kategori';
-                document.getElementById('kategori-id').value = this.dataset.id;
-                document.getElementById('kategori-input').value = this.dataset.kategori;
-                document.getElementById('reset-btn').style.display = 'inline-block';
-
-                const form = document.getElementById('kategori-form');
-                const baseUrl =
-                    "{{ auth()->user()->can('view_admin') ? url('admin/kategori') : url('kategori') }}";
-                form.action = `${baseUrl}/${this.dataset.id}`;
-
-                let methodInput = form.querySelector('input[name="_method"]');
-                if (!methodInput) {
-                    methodInput = document.createElement('input');
-                    methodInput.type = 'hidden';
-                    methodInput.name = '_method';
-                    form.appendChild(methodInput);
-                }
-                methodInput.value = 'PATCH';
-            });
-        });
-
-        // Tombol Batal Edit
-        document.getElementById('reset-btn').addEventListener('click', function() {
-            document.getElementById('form-title').innerText = 'Tambah Kategori';
-            document.getElementById('kategori-id').value = '';
-            document.getElementById('kategori-input').value = '';
-            this.style.display = 'none';
-
-            const form = document.getElementById('kategori-form');
-            form.action =
-                "{{ auth()->user()->can('view_admin') ? route('admin.kategori.store') : route('kategori.store') }}";
-
-            const methodInput = form.querySelector('input[name="_method"]');
-            if (methodInput) methodInput.remove();
-        });
-    </script>
-@endsection --}}

@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('email');
             $table->integer('jumlah');
             $table->integer('total_harga');
-            $table->string('payment_type');
+            $table->string('payment_type')->null;
             $table->enum('status_pembayaran', ['pending','berhasil','gagal']);
             $table->enum('status_tiket', ['sudah ditukar','belum ditukar']);
-            $table->string('snap_token');
+            $table->string('snap_token')->null;
             $table->timestamps();
         });
     }

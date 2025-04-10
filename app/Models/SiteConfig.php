@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class site_config extends Model
+class SiteConfig extends Model
 {
     use HasFactory;
     protected $fillable = ['id', 'logo', 'lokasi', 'email', 'telpon', 'instagram', 'x'];

@@ -25,6 +25,29 @@ class EventController extends Controller
         return view('admin.event.index', compact('events'));
     }
 
+    public function indexapi()
+    {
+        $event = Event::with(['kategori'])->get();
+
+        $res = [
+            'success' => true,
+            'message' => 'Daftar Event',
+            'events'  => $event,
+        ];
+        return response()->json($res, 200);
+    }
+
+    public function show($id)
+    {
+        $event = Event::find($id);
+
+        if (! $event) {
+            return response()->json(['message' => 'Event not found'], 404);
+        }
+
+        return response()->json($event, 200);
+    }
+
     public function create()
     {
         $kategoris = Kategori::all();

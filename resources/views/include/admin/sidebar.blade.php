@@ -74,6 +74,13 @@
                         </li>
 
                         <li>
+                            <a href="{{ route('admin.pembayaran.index') }}">
+                                <i class="fi fi-rs-memo-circle-check"></i>
+                                <span> Pembayaran </span>
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="{{ route('admin.penyelenggara.index') }}">
                                 <i class="fi fi-rs-member-list"></i>
                                 <span> Akun </span>
