@@ -29,7 +29,6 @@ Route::prefix('admin')->middleware(['auth', 'can:view_admin'])->as('admin.')->gr
     Route::resource('penyelenggara', PenyelenggaraController::class);
     Route::resource('pembayaran', PembayaranController::class);
     Route::post('/admin/pembayaran/{id}/bayar', [PembayaranController::class, 'bayar'])->name('admin.pembayaran.bayar');
-    Route::post('/midtrans/webhook', [MidtransWebhookController::class, 'handle']);
     Route::put('/admin/pembayaran/{orderId}/status_tiket', [PembayaranController::class, 'updateStatusTiket']);
 
     Route::get('/pengajuan', [PengajuanEventController::class, 'index'])->name('pengajuan.index');

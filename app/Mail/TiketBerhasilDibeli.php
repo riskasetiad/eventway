@@ -1,9 +1,9 @@
 <?php
+namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TiketBerhasilDibeli extends Mailable
 {
@@ -18,13 +18,10 @@ class TiketBerhasilDibeli extends Mailable
 
     public function build()
     {
-        $qr = base64_encode(QrCode::format('png')->size(200)->generate($this->order->id));
-
         return $this->subject('Tiket Anda Berhasil Dibeli')
-            ->view('emails.tiket_berhasil')
+            ->view('admin.emails.tiket_berhasil')
             ->with([
                 'order' => $this->order,
-                'qr'    => $qr,
             ]);
     }
 }

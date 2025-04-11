@@ -6,4 +6,4 @@
 <p><strong>Status:</strong> {{ ucfirst($order->status_pembayaran) }}</p>
 
 <h4>QR Code untuk Penukaran Tiket:</h4>
-<img src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl={{ urlencode($order->id) }}" alt="QR Code">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode('TIKET-' . $order->id) }}" alt="QR Code">
