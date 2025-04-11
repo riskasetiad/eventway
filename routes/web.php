@@ -3,7 +3,6 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\KategoriController;
-use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PengajuanEventController;
 use App\Http\Controllers\PenyelenggaraController;
@@ -29,7 +28,7 @@ Route::prefix('admin')->middleware(['auth', 'can:view_admin'])->as('admin.')->gr
     Route::resource('penyelenggara', PenyelenggaraController::class);
     Route::resource('pembayaran', PembayaranController::class);
     Route::post('/admin/pembayaran/{id}/bayar', [PembayaranController::class, 'bayar'])->name('admin.pembayaran.bayar');
-    Route::put('/admin/pembayaran/{orderId}/status_tiket', [PembayaranController::class, 'updateStatusTiket']);
+    Route::put('/pembayaran/{id}/status_tiket', [PembayaranController::class, 'updateStatusTiket'])->name('pembayaran.updateStatusTiket');
 
     Route::get('/pengajuan', [PengajuanEventController::class, 'index'])->name('pengajuan.index');
     Route::post('/pengajuan/{event}/approve', [PengajuanEventController::class, 'approve'])->name('pengajuan.approve');

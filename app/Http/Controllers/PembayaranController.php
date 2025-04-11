@@ -151,20 +151,12 @@ class PembayaranController extends Controller
         return view('admin.pembayaran.bayar', compact('order', 'snapToken'));
     }
 
-    public function updateStatusTiket(Request $request, $orderId)
+    public function updateStatusTiket(Request $request, $id)
     {
-        $order = Order::findOrFail($orderId);
-
-        // Validasi status tiket
-        $validated = $request->validate([
-            'status_tiket' => 'required|in:belum ditukar,sudah ditukar',
-        ]);
-
-        // Update status tiket
-        $order->status_tiket = $validated['status_tiket'];
+        $order               = Order::findOrFail($id);
+        $order->status_tiket = $request->status_tiket;
         $order->save();
 
-        // Mengirimkan response JSON
         return response()->json(['success' => true]);
     }
 

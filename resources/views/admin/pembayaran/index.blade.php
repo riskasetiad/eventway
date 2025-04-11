@@ -75,7 +75,7 @@
     <!-- Modal Edit Status Tiket -->
     <div class="modal fade" id="editStatusModal" tabindex="-1" aria-labelledby="editStatusModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form id="editStatusForm" onsubmit="submitStatus(event)">
+            <form id="editStatusForm">
                 <meta name="csrf-token" content="{{ csrf_token() }}">
                 <input type="hidden" id="edit_order_id">
                 <div class="modal-content">
@@ -102,9 +102,14 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editStatusForm');
+            form.addEventListener('submit', submitStatus);
+        });
+
         function showEditModal(orderId, statusTiket) {
             document.getElementById('edit_order_id').value = orderId;
-            document.getElementById('status_tiket').value = statusTiket.toLowerCase();
+            document.getElementById('status_tiket').value = statusTiket;
 
             const modal = new bootstrap.Modal(document.getElementById('editStatusModal'));
             modal.show();
@@ -117,7 +122,6 @@
             const statusTiket = document.getElementById('status_tiket').value;
             const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-            // Pastikan URL sesuai dengan route yang di Laravel
             fetch(`/admin/pembayaran/${orderId}/status_tiket`, {
                     method: 'PUT',
                     headers: {
@@ -128,7 +132,10 @@
                         status_tiket: statusTiket
                     })
                 })
-                .then(res => res.json()) // Pastikan server mengembalikan JSON
+                .then(res => {
+                    if (!res.ok) throw new Error("Server error " + res.status);
+                    return res.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert('Status berhasil diperbarui!');
@@ -142,7 +149,7 @@
                     }
                 })
                 .catch(err => {
-                    console.error(err); // Menampilkan error lengkap di console
+                    console.error(err);
                     alert('AJAX Error: ' + err.message);
                 });
         }
