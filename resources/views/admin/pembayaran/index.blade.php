@@ -50,7 +50,7 @@
                                 </span>
                             </td>
                             <td class="text-center align-middle">
-                                @if ($order->status_pembayaran == 'pending')
+                                @if ($order->status_pembayaran === 'pending')
                                     <form action="{{ route('admin.admin.pembayaran.bayar', $order->id) }}" method="POST"
                                         class="d-inline">
                                         @csrf
@@ -60,11 +60,15 @@
 
                                 <a href="{{ route('admin.pembayaran.show', $order->id) }}"
                                     class="btn btn-info btn-sm">Detail</a>
-                                <button class="btn btn-warning btn-sm mt-1"
-                                    onclick="showEditModal('{{ $order->id }}', '{{ $order->status_tiket }}')">
-                                    Edit
-                                </button>
+
+                                @if ($order->status_pembayaran === 'berhasil' && $order->status_tiket !== 'sudah ditukar')
+                                    <button class="btn btn-warning btn-sm mt-1"
+                                        onclick="showEditModal('{{ $order->id }}', '{{ $order->status_tiket }}')">
+                                        Edit Status
+                                    </button>
+                                @endif
                             </td>
+
                         </tr>
                     @endforeach
                 </tbody>

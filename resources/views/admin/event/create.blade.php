@@ -3,8 +3,6 @@
 @section('content')
     <div class="container p-4">
         <h4 class="mb-4">Tambah Event Baru</h4>
-        <script src="https://cdn.tiny.cloud/1/3lu615xty82ph7mid1dymfmnkietg5mezg5n3tlfytz4g5i4/tinymce/7/tinymce.min.js"
-            referrerpolicy="no-referrer-when-downgrade"></script>
 
         <form action="{{ auth()->user()->can('view_admin') ? route('admin.events.store') : route('events.store') }}"
             method="POST" enctype="multipart/form-data">
@@ -70,6 +68,7 @@
                 <label for="deskripsi" class="form-label">Deskripsi</label>
                 <textarea id="deskripsi" name="deskripsi" class="form-control" rows="4" placeholder="Jelaskan detail event..."></textarea>
 
+                <script src="{{ asset('plugins/tinymce/tinymce.min.js') }}"></script>
                 <script>
                     tinymce.init({
                         selector: '#deskripsi',
@@ -109,12 +108,11 @@
                     });
                 </script>
 
+
             </div>
 
             <button type="submit" class="btn btn-success">Simpan Event</button>
             <a href="{{ route('events.index') }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
-
-    <!-- Inisialisasi TinyMCE -->
 @endsection

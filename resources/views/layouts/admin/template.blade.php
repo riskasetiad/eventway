@@ -20,8 +20,7 @@
     <!-- Icons -->
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
-    <script src="https://cdn.tiny.cloud/1/3lu615xty82ph7mid1dymfmnkietg5mezg5n3tlfytz4g5i4/tinymce/7/tinymce.min.js"
-        referrerpolicy="no-referrer-when-downgrade"></script>
+    <script src="/tinymce/tinymce.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @stack('scripts')

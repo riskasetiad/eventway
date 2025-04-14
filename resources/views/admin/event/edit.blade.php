@@ -103,25 +103,24 @@
         </form>
     </div>
     @push('scripts')
-        <script src="https://cdn.tiny.cloud/1/3lu615xty82ph7mid1dymfmnkietg5mezg5n3tlfytz4g5i4/tinymce/7/tinymce.min.js"
-            referrerpolicy="no-referrer-when-downgrade"></script>
+        <script src="{{ asset('plugins/tinymce/tinymce.min.js') }}"></script>
         <script>
             tinymce.init({
                 selector: '#deskripsi',
                 height: 300,
                 menubar: false,
-                plugins: 'advlist autolink lists link image charmap print preview',
+                plugins: 'advlist autolink lists link image charmap preview',
                 toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
                 branding: false,
                 image_title: true,
                 automatic_uploads: true,
                 file_picker_types: 'image',
-                images_upload_url: 'admin/upload-image',
+                images_upload_url: '/admin/upload-image',
                 images_upload_handler: function(blobInfo, success, failure) {
                     let formData = new FormData();
                     formData.append('file', blobInfo.blob(), blobInfo.filename());
 
-                    fetch('admin/upload-image', {
+                    fetch('/admin/upload-image', {
                             method: 'POST',
                             body: formData,
                             headers: {
@@ -134,11 +133,10 @@
                             if (data.location) {
                                 success(data.location);
                             } else {
-                                throw new Error('Upload gagal: Tidak ada URL gambar.');
+                                failure('Upload gagal: Tidak ada URL gambar.');
                             }
                         })
                         .catch(error => {
-                            console.error("Error:", error);
                             failure('Upload gagal: ' + error.message);
                         });
                 }

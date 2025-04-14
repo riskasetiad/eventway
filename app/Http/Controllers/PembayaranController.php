@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use Alert;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Midtrans\Config;
@@ -56,8 +57,8 @@ class PembayaranController extends Controller
 
         // Simpan ke database
         \App\Models\Order::create($validated);
-
-        return redirect()->route('admin.pembayaran.index')->with('success', 'Order berhasil ditambahkan!');
+        Alert::toast('Order berhasil ditambahkan!', 'success')->autoClose(3000);
+        return redirect()->route('admin.pembayaran.index');
     }
 
     /**
@@ -74,8 +75,12 @@ class PembayaranController extends Controller
      */
     public function edit(string $id)
     {
-        // Bisa dipakai untuk mengubah status tiket atau status pembayaran secara manual
         $order = Order::findOrFail($id);
+
+        if ($order->status_pembayaran !== 'berhasil') {
+            abort(403, 'Anda tidak diizinkan mengedit data ini.');
+        }
+
         return view('admin.pembayaran.edit', compact('order'));
     }
 
