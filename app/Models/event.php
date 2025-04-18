@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\Kategori;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -20,16 +21,15 @@ class Event extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function kategori()
-    {
-        return $this->belongsTo(Kategori::class);
-    }
-    
     public function tikets()
     {
         return $this->hasMany(Tiket::class);
     }
 
+    public function kategoris()
+    {
+        return $this->belongsToMany(Kategori::class, 'event_kategori', 'event_id', 'kategori_id');
+    }
     // Auto-generate slug saat membuat event baru
     protected static function booted()
     {

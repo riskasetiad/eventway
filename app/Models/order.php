@@ -1,20 +1,20 @@
 <?php
-
 namespace App\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasFactory;
-    protected $fillable = ['id','tiket_id','nama_lengkap','jenis_kelamin','tgl_lahir','email','jumlah','total_harga',
-    'payment_type','status_pembayaran','status_tiket','snap_token'];
+    protected $fillable = [
+        'tiket_id', 'nama_lengkap', 'jenis_kelamin', 'tgl_lahir', 'email',
+        'jumlah', 'total_harga', 'payment_type', 'status_pembayaran', 'status_tiket',
+        'snap_token', 'payment_deadline',
+    ];
+
     public $timestamps = true;
 
     public function tiket()
-{
-    return $this->belongsTo(Tiket::class);
+    {
+        return $this->belongsTo(Tiket::class);
+    }
 }
-}
-

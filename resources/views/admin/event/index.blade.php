@@ -26,7 +26,11 @@
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
                         </td>
                         <td>{{ $event->title }}</td>
-                        <td>{{ $event->kategori->kategori }}</td>
+                        <td>
+                            @foreach ($event->kategoris as $kategori)
+                                <span class="badge bg-secondary">{{ $kategori->kategori }}</span>
+                            @endforeach
+                        </td>
                         <td>
                             @if ($event->status === 'Pending')
                                 <span class="badge bg-warning text-dark">Pending</span>
@@ -91,7 +95,11 @@
                                             style="max-height: 300px;">
                                     </div>
                                     <p><strong>Judul:</strong> {{ $event->title }}</p>
-                                    <p><strong>Kategori:</strong> {{ $event->kategori->kategori }}</p>
+                                    <p><strong>Kategori:</strong>
+                                        @foreach ($event->kategoris as $kategori)
+                                            <span class="badge bg-secondary">{{ $kategori->kategori }}</span>
+                                        @endforeach
+                                    </p>
                                     <p><strong>Tanggal Mulai:</strong>
                                         {{ \Carbon\Carbon::parse($event->tgl_mulai)->format('d M Y') }}</p>
                                     <p><strong>Tanggal Selesai:</strong>

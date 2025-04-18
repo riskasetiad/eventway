@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Alert;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
+
 // Pastikan SweetAlert di-import
 
 class KategoriController extends Controller
@@ -19,7 +20,10 @@ class KategoriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kategori' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255|unique:kategoris,kategori',
+        ], [
+            'kategori.unique'   => 'Kategori sudah ada.',
+            'kategori.required' => 'Kategori tidak boleh kosong.',
         ]);
 
         Kategori::create($request->all());
@@ -38,7 +42,7 @@ class KategoriController extends Controller
     public function update(Request $request, Kategori $kategori)
     {
         $request->validate([
-            'kategori' => 'required|string|max:255',
+            'kategori' => 'required|string|max:255|unique:kategoris,kategori,' . $kategori->id,
         ]);
 
         $kategori->update($request->all());

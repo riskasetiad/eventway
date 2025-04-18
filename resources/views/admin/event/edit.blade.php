@@ -4,7 +4,15 @@
 
     <div class="container p-4">
         <h4 class="mb-4">Edit Event</h4>
-
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @if ($errors->any())
             <div class="alert alert-danger">
                 <ul>
@@ -26,16 +34,22 @@
             </div>
 
             <div class="mb-3">
-                <label for="kategori_id" class="form-label">Kategori</label>
-                <select name="kategori_id" id="kategori_id" class="form-control" required>
-                    <option value="">Pilih Kategori</option>
+                <label class="form-label">Kategori</label>
+                <div class="form-check">
                     @foreach ($kategoris as $kategori)
-                        <option value="{{ $kategori->id }}" {{ $kategori->id == $event->kategori_id ? 'selected' : '' }}>
-                            {{ $kategori->kategori }}
-                        </option>
+                        <div>
+                            <input class="form-check-input" type="checkbox" name="kategori_id[]" value="{{ $kategori->id }}"
+                                id="kategori{{ $kategori->id }}"
+                                {{ in_array($kategori->id, $event->kategoris->pluck('id')->toArray()) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="kategori{{ $kategori->id }}">
+                                {{ $kategori->kategori }}
+                            </label>
+                        </div>
                     @endforeach
-                </select>
+                </div>
             </div>
+
+
 
             <div class="mb-3">
                 <label for="image" class="form-label">Gambar Event</label>

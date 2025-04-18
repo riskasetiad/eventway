@@ -36,9 +36,27 @@ class TiketController extends Controller
                     ->where('user_id', auth()->id()), // Hanya event milik user
             ],
             'title'    => 'required|string|max:255',
-            'harga'    => 'required|integer',
-            'stok'     => 'required|integer',
+            'harga'    => 'required|integer|min:0',
+            'stok'     => 'required|integer|min:1',
             'status'   => 'required|in:tersedia,habis',
+        ], [
+            'event_id.required' => 'Event wajib dipilih.',
+            'event_id.exists'   => 'Event tidak valid atau belum disetujui.',
+
+            'title.required'    => 'Judul tiket wajib diisi.',
+            'title.string'      => 'Judul tiket harus berupa teks.',
+            'title.max'         => 'Judul tiket maksimal 255 karakter.',
+
+            'harga.required'    => 'Harga tiket wajib diisi.',
+            'harga.integer'     => 'Harga tiket harus berupa angka.',
+            'harga.min'         => 'Harga tiket tidak boleh negatif.',
+
+            'stok.required'     => 'Stok tiket wajib diisi.',
+            'stok.integer'      => 'Stok tiket harus berupa angka.',
+            'stok.min'          => 'Stok tiket minimal 1.',
+
+            'status.required'   => 'Status tiket wajib dipilih.',
+            'status.in'         => 'Status tiket harus antara "tersedia" atau "habis".',
         ]);
 
         Tiket::create($request->all());
@@ -61,25 +79,25 @@ class TiketController extends Controller
         return view('admin.tiket.edit', compact('tiket', 'events'));
     }
     public function update(Request $request, Tiket $tiket)
-{
-    $request->validate([
-        'event_id' => [
-            'required',
-            Rule::exists('events', 'id')
-                ->where('status', 'approved')
-                ->where('user_id', auth()->id()), // Hanya event milik user
-        ],
-        'title'  => 'required|string|max:255',
-        'harga'  => 'required|integer',
-        'stok'   => 'required|integer',
-        'status' => 'required|in:tersedia,habis',
-    ]);
+    {
+        $request->validate([
+            'event_id' => [
+                'required',
+                Rule::exists('events', 'id')
+                    ->where('status', 'approved')
+                    ->where('user_id', auth()->id()), // Hanya event milik user
+            ],
+            'title'    => 'required|string|max:255',
+            'harga'    => 'required|integer',
+            'stok'     => 'required|integer',
+            'status'   => 'required|in:tersedia,habis',
+        ]);
 
-    $tiket->update($request->all());
+        $tiket->update($request->all());
 
-    Alert::toast('Tiket berhasil diperbarui!', 'success')->autoClose(3000);
-    return redirect()->route('tiket.index');
-}
+        Alert::toast('Tiket berhasil diperbarui!', 'success')->autoClose(3000);
+        return redirect()->route('tiket.index');
+    }
 
     public function destroy(Tiket $tiket)
     {

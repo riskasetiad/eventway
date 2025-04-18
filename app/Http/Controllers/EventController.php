@@ -8,39 +8,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-// Import notifikasi
-
 class EventController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->can('view_admin')) {
-            // Admin bisa melihat semua event
-            $events = Event::with('kategori')->latest()->get();
-        } else {
-            // User hanya bisa melihat event yang mereka buat
-            $events = Event::with('kategori')->where('user_id', auth()->id())->latest()->get();
-        }
+        $events = auth()->user()->can('view_admin')
+        ? Event::with('kategoris')->latest()->get()
+        : Event::with('kategoris')->where('user_id', auth()->id())->latest()->get();
 
         return view('admin.event.index', compact('events'));
     }
 
     public function indexapi()
     {
-        $event = Event::with(['kategori'])->get();
+        $event = Event::with('kategoris')->get();
 
-        $res = [
+        return response()->json([
             'success' => true,
             'message' => 'Daftar Event',
             'events'  => $event,
-        ];
-        return response()->json($res, 200);
+        ]);
     }
 
     public function show($id)
     {
-        $event = Event::find($id);
-
+        $event = Event::with('kategoris', 'tikets')->find($id);
+ 
         if (! $event) {
             return response()->json(['message' => 'Event not found'], 404);
         }
@@ -56,32 +49,29 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data
         $request->validate([
             'title'         => 'required|string|max:255',
             'image'         => 'required|image|mimes:jpeg,png,jpg|max:10240',
-            'kategori_id'   => 'required|exists:kategoris,id',
-            'tgl_mulai'     => 'required|date',
+            'kategori_id'   => 'required|array|min:1',
+            'kategori_id.*' => 'exists:kategoris,id',
+            'tgl_mulai'     => 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d'),
             'tgl_selesai'   => 'required|date|after_or_equal:tgl_mulai',
             'kota'          => 'required|string',
             'lokasi'        => 'required|string',
             'url_lokasi'    => 'required|url',
             'deskripsi'     => 'required|string',
-            'waktu_mulai'   => 'required|date_format:H:i',
-            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
+            'waktu_mulai'   => 'required',
+            'waktu_selesai' => 'required|after:waktu_mulai',
         ]);
 
-        // Simpan gambar dengan path yang benar
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads'), $imageName);
         $imagePath = 'uploads/' . $imageName;
 
-        // Simpan data event
         $event = Event::create([
             'user_id'       => Auth::id(),
             'image'         => $imagePath,
             'title'         => $request->title,
-            'kategori_id'   => $request->kategori_id,
             'tgl_mulai'     => $request->tgl_mulai,
             'tgl_selesai'   => $request->tgl_selesai,
             'kota'          => $request->kota,
@@ -94,14 +84,10 @@ class EventController extends Controller
             'slug'          => Str::slug($request->title),
         ]);
 
-        // Kirim notifikasi ke admin jika ada sistem notifikasi
-        // $admins = User::role('admin')->get();
-        // Notification::send($admins, new EventSubmissionNotification($event));
+        $event->kategoris()->attach($request->kategori_id);
 
-        // Tampilkan notifikasi sukses dengan SweetAlert
         Alert::toast('Event berhasil ditambahkan!', 'success')->autoClose(3000);
 
-        // Redirect ke halaman event list user atau admin
         return auth()->user()->can('view_admin')
         ? redirect()->route('admin.events.index')->with('success', 'Event berhasil ditambahkan!')
         : redirect()->route('events.index')->with('success', 'Event berhasil ditambahkan!');
@@ -117,27 +103,30 @@ class EventController extends Controller
     {
         $request->validate([
             'title'         => 'required|string|max:255',
-            'kategori_id'   => 'required',
-            'tgl_mulai'     => 'required|date',
+            'kategori_id'   => 'required|array|min:1',
+            'kategori_id.*' => 'exists:kategoris,id',
+            'tgl_mulai'     => 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d'),
             'tgl_selesai'   => 'required|date|after_or_equal:tgl_mulai',
             'kota'          => 'required|string',
             'lokasi'        => 'required|string',
             'url_lokasi'    => 'required|url',
-            'deskripsi'     => 'required',
+            'deskripsi'     => 'required|string',
             'waktu_mulai'   => 'required',
             'waktu_selesai' => 'required|after:waktu_mulai',
         ]);
 
         if ($request->hasFile('image')) {
             if ($event->image && file_exists(public_path($event->image))) {
-                unlink(public_path($event->image)); // Hapus gambar lama
+                unlink(public_path($event->image));
             }
+
             $imageName = time() . '.' . $request->image->extension();
             $request->image->move(public_path('uploads'), $imageName);
             $event->image = 'uploads/' . $imageName;
         }
 
-        $event->update($request->except('image'));
+        $event->update($request->except(['kategori_id', 'image']));
+        $event->kategoris()->sync($request->kategori_id);
 
         Alert::toast('Event berhasil diperbarui!', 'success')->autoClose(3000);
         return redirect()->route('events.index');
@@ -145,6 +134,10 @@ class EventController extends Controller
 
     public function destroy(Event $event)
     {
+        if ($event->image && file_exists(public_path($event->image))) {
+            unlink(public_path($event->image));
+        }
+
         $event->delete();
 
         Alert::toast('Event berhasil dihapus!', 'success')->autoClose(3000);
@@ -163,11 +156,10 @@ class EventController extends Controller
 
         $event->update([
             'status' => 'Pending',
-            'alasan' => null, // Hapus alasan penolakan
+            'alasan' => null,
         ]);
 
         Alert::toast('Event berhasil diajukan ulang!', 'success')->autoClose(3000);
         return redirect()->route('events.index');
     }
-
 }

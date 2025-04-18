@@ -3,7 +3,15 @@
 @section('content')
     <div class="container p-4">
         <h4>Tambah Tiket</h4>
-
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ auth()->user()->can('view_admin') ? route('admin.tiket.store') : route('tiket.store') }}"
             method="POST" enctype="multipart/form-data">
             @csrf

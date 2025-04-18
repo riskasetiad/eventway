@@ -4,51 +4,73 @@
     <div class="container mt-4">
         <h2 class="mb-4">Form Tambah Order</h2>
 
-        <form action="{{ route('admin.pembayaran.store') }}" method="POST">
+        <form id="orderForm" action="{{ route('admin.pembayaran.store') }}" method="POST">
             @csrf
 
             <div class="mb-3">
-                <label for="event_id" class="form-label">Pilih Event</label>
-                <select id="eventSelect" class="form-select" required>
+                <label for="eventSelect"id="eventSelect" class="form-label">Pilih Event</label>
+                <select name="event_id" id="eventSelect" class="form-select" required>
                     <option value="">-- Pilih Event --</option>
                     @foreach ($events as $event)
-                        <option value="{{ $event->id }}">{{ $event->title }}</option>
+                        <option value="{{ $event->id }}" {{ old('event_id') == $event->id ? 'selected' : '' }}>
+                            {{ $event->title }}
+                        </option>
                     @endforeach
                 </select>
             </div>
 
+            <!-- Pilih Tiket -->
             <div class="mb-3">
-                <label for="tiket_id" class="form-label">Pilih Tiket</label>
+                <label for="tiketSelect" class="form-label">Pilih Tiket</label>
                 <select name="tiket_id" id="tiketSelect" class="form-select" required>
                     <option value="">-- Pilih Tiket --</option>
+                    {{-- Tiket akan diisi otomatis via JS --}}
                 </select>
             </div>
 
             <div class="mb-3">
                 <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" class="form-control" required>
+                <input type="text" name="nama_lengkap" class="form-control @error('nama_lengkap') is-invalid @enderror"
+                    required value="{{ old('nama_lengkap') }}">
+                @error('nama_lengkap')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Jenis Kelamin</label><br>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="jenis_kelamin" value="laki-laki" required>
+                    <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
+                        name="jenis_kelamin" value="laki-laki" {{ old('jenis_kelamin') == 'laki-laki' ? 'checked' : '' }}
+                        required>
                     <label class="form-check-label">Laki-laki</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="jenis_kelamin" value="perempuan">
+                    <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
+                        name="jenis_kelamin" value="perempuan" {{ old('jenis_kelamin') == 'perempuan' ? 'checked' : '' }}>
                     <label class="form-check-label">Perempuan</label>
                 </div>
+                @error('jenis_kelamin')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3">
                 <label for="tgl_lahir" class="form-label">Tanggal Lahir</label>
-                <input type="date" name="tgl_lahir" class="form-control" required>
+                <input type="date" name="tgl_lahir" class="form-control @error('tgl_lahir') is-invalid @enderror"
+                    required value="{{ old('tgl_lahir') }}">
+                @error('tgl_lahir')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" class="form-control" required>
+                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" required
+                    value="{{ old('email') }}">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3">
@@ -58,73 +80,106 @@
 
             <div class="mb-3">
                 <label for="jumlahTiket" class="form-label">Jumlah Tiket</label>
-                <input type="number" name="jumlah" id="jumlahTiket" class="form-control" value="1" min="1">
+                <input type="number" name="jumlah" id="jumlahTiket"
+                    class="form-control @error('jumlah') is-invalid @enderror" value="{{ old('jumlah', 1) }}"
+                    min="1">
+                @error('jumlah')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="mb-3">
                 <label for="total_harga" class="form-label">Total Harga</label>
-                <input type="number" name="total_harga" class="form-control" readonly>
+                <input type="number" name="total_harga" class="form-control @error('total_harga') is-invalid @enderror"
+                    readonly value="{{ old('total_harga') }}">
+                @error('total_harga')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
 
             <button type="submit" class="btn btn-success">Simpan</button>
             <a href="{{ route('admin.pembayaran.index') }}" class="btn btn-secondary">Batal</a>
         </form>
     </div>
-    <script>
-        // Ambil data event dan tiket dari Blade
-        const events = @json($events);
 
-        // Elemen form yang perlu diupdate
-        const eventSelect = document.getElementById('eventSelect');
-        const tiketSelect = document.getElementById('tiketSelect');
-        const hargaTiketInput = document.getElementById('hargaTiket');
-        const jumlahTiketInput = document.getElementById('jumlahTiket');
-        const totalHargaInput = document.querySelector('input[name="total_harga"]');
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
 
-        // Menambahkan event listener untuk event select (pilih event)
-        eventSelect.addEventListener('change', function() {
-            const eventId = this.value;
-            tiketSelect.innerHTML = '<option value="">-- Pilih Tiket --</option>';
+            const events = @json($events);
+            console.log('Events from backend:', events); // ⬅️ Tambahkan ini
 
-            // Mencari event yang dipilih
-            const selectedEvent = events.find(event => event.id == eventId);
-            if (selectedEvent) {
-                // Menambahkan tiket yang tersedia ke dalam dropdown tiket
-                selectedEvent.tikets.forEach(tiket => {
-                    if (tiket.status === 'tersedia') { // Memastikan tiket yang tersedia yang dipilih
-                        const option = document.createElement('option');
-                        option.value = tiket.id;
-                        option.textContent = tiket.title;
-                        option.dataset.harga = tiket.harga; // Menyimpan harga tiket di data atribut
-                        tiketSelect.appendChild(option);
-                    }
-                });
+            const oldTiketId = "{{ old('tiket_id') }}";
+            const eventSelect = document.getElementById('eventSelect');
+            const tiketSelect = document.getElementById('tiketSelect');
+            const hargaTiketInput = document.getElementById('hargaTiket');
+            const jumlahTiketInput = document.getElementById('jumlahTiket');
+            const totalHargaInput = document.querySelector('input[name="total_harga"]');
+
+            function populateTiketOptions(eventId) {
+                console.log('populateTiketOptions triggered with eventId:', eventId);
+
+                tiketSelect.innerHTML = '<option value="">-- Pilih Tiket --</option>';
+                const selectedEvent = events.find(event => event.id == eventId);
+
+                console.log('Selected Event:', selectedEvent);
+
+                if (selectedEvent) {
+                    selectedEvent.tikets.forEach(tiket => {
+                        console.log('Checking tiket:', tiket);
+                        if ((tiket.status || '').toLowerCase().trim() === 'tersedia') {
+                            const option = document.createElement('option');
+                            option.value = tiket.id;
+                            option.textContent = tiket.title;
+                            option.dataset.harga = tiket.harga;
+
+                            if (tiket.id == oldTiketId) {
+                                option.selected = true;
+                            }
+
+                            tiketSelect.appendChild(option);
+                        }
+                    });
+                }
+
+                updateHargaDanTotal();
             }
 
-            // Reset harga dan total harga
-            hargaTiketInput.value = '';
-            totalHargaInput.value = '';
-        });
+            function updateHargaDanTotal() {
+                const selectedTiket = tiketSelect.options[tiketSelect.selectedIndex];
+                const harga = parseInt(selectedTiket?.dataset?.harga || 0);
+                const jumlah = parseInt(jumlahTiketInput.value || 0);
 
-        // Fungsi untuk menghitung harga total berdasarkan tiket yang dipilih dan jumlah tiket
-        function updateHargaDanTotal() {
-            const selectedTiket = tiketSelect.options[tiketSelect.selectedIndex];
-            const harga = parseInt(selectedTiket?.dataset?.harga || 0); // Mengambil harga tiket dari data atribut
-            const jumlah = parseInt(jumlahTiketInput.value || 0); // Mengambil jumlah tiket yang diinputkan
+                hargaTiketInput.value = harga || '';
 
-            // Update harga tiket
-            hargaTiketInput.value = harga ? harga : ''; // Menampilkan harga tiket jika ada
-
-            // Hitung dan tampilkan total harga
-            if (harga > 0 && jumlah > 0) {
-                totalHargaInput.value = harga * jumlah; // Total harga = harga tiket * jumlah tiket
-            } else {
-                totalHargaInput.value = ''; // Kosongkan jika harga atau jumlah tidak valid
+                if (harga > 0 && jumlah > 0) {
+                    totalHargaInput.value = harga * jumlah;
+                } else {
+                    totalHargaInput.value = '';
+                }
             }
-        }
 
-        // Menambahkan event listener untuk perubahan pada pilihan tiket dan jumlah tiket
-        tiketSelect.addEventListener('change', updateHargaDanTotal);
-        jumlahTiketInput.addEventListener('input', updateHargaDanTotal);
-    </script>
+            eventSelect.addEventListener('change', function() {
+                populateTiketOptions(this.value);
+            });
+
+            tiketSelect.addEventListener('change', updateHargaDanTotal);
+            jumlahTiketInput.addEventListener('input', updateHargaDanTotal);
+
+            // Trigger on page load if old values exist
+            document.addEventListener('DOMContentLoaded', () => {
+                if (eventSelect.value) {
+                    populateTiketOptions(eventSelect.value);
+                }
+            });
+
+            // Prevent submit if tiket belum dipilih
+            document.getElementById('orderForm').addEventListener('submit', function(e) {
+                if (!tiketSelect.value) {
+                    e.preventDefault();
+                    alert('Silakan pilih tiket terlebih dahulu.');
+                }}
+            })
+        </script>
+    @endpush
 @endsection

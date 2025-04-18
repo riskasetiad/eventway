@@ -3,7 +3,15 @@
 @section('content')
     <div class="container p-4">
         <h4>Edit Tiket</h4>
-
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('admin.tiket.update', $tiket->id) }}" method="POST">
             @csrf
             @method('PUT')

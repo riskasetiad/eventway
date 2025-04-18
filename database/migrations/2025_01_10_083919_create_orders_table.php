@@ -21,10 +21,11 @@ return new class extends Migration
             $table->string('email');
             $table->integer('jumlah');
             $table->integer('total_harga');
-            $table->string('payment_type')->null;
-            $table->enum('status_pembayaran', ['pending','berhasil','gagal']);
-            $table->enum('status_tiket', ['sudah ditukar','belum ditukar']);
-            $table->string('snap_token')->null;
+            $table->string('payment_type')->nullable();
+            $table->enum('status_pembayaran', ['pending', 'berhasil', 'gagal']);
+            $table->enum('status_tiket', ['sudah ditukar', 'belum ditukar']);
+            $table->string('snap_token')->nullable();
+            $table->timestamp('payment_deadline')->nullable(); // Kolom batas waktu pembayaran
             $table->timestamps();
         });
     }

@@ -2,17 +2,32 @@
 
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\Guest\EventGuestController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\PengajuanEventController;
 use App\Http\Controllers\PenyelenggaraController;
 use App\Http\Controllers\TiketController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/', [EventGuestController::class, 'home'])->name('guest.home');
+Route::get('/event', [EventGuestController::class, 'index'])->name('guest.event');
+Route::get('/event/{slug}', [EventGuestController::class, 'show'])->name('guest.detail');
+Route::get('/tentang', function () {return view('guest.about');})->name('guest.about');
+Route::get('/kontak', function () {return view('guest.kontak');})->name('guest.kontak');
+// GET - Tampilkan form
+Route::get('/beli', [PembayaranController::class, 'formCheckout'])->name('guest.checkout.form');
+
+// POST - Proses pembelian
+Route::post('/beli', [PembayaranController::class, 'guestCheckout'])->name('guest.checkout.proses');
+
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
 
@@ -55,4 +70,21 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('can:ticket_read')->group(function () {
         Route::resource('tiket', TiketController::class);
     });
+
 });
+Route::get('/uploads/{filename}', function ($filename) {
+    $path = public_path('uploads/' . $filename);
+
+    if (! File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    return response($file, 200)
+        ->header("Content-Type", $type)
+        ->header("Access-Control-Allow-Origin", "*");
+});
+
+//route guest

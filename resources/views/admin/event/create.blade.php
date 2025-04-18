@@ -3,7 +3,15 @@
 @section('content')
     <div class="container p-4">
         <h4 class="mb-4">Tambah Event Baru</h4>
-
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ auth()->user()->can('view_admin') ? route('admin.events.store') : route('events.store') }}"
             method="POST" enctype="multipart/form-data">
             @csrf
@@ -19,14 +27,21 @@
             </div>
 
             <div class="mb-3">
-                <label for="kategori_id" class="form-label">Kategori</label>
-                <select name="kategori_id" class="form-select" required>
-                    <option value="">-- Pilih Kategori --</option>
+                <label class="form-label">Kategori</label>
+                <div class="form-check">
                     @foreach ($kategoris as $kategori)
-                        <option value="{{ $kategori->id }}">{{ $kategori->kategori }}</option>
+                        <div>
+                            <input class="form-check-input" type="checkbox" name="kategori_id[]" value="{{ $kategori->id }}"
+                                id="kategori{{ $kategori->id }}">
+                            <label class="form-check-label" for="kategori{{ $kategori->id }}">
+                                {{ $kategori->kategori }}
+                            </label>
+                        </div>
                     @endforeach
-                </select>
+                </div>
             </div>
+
+
 
             <div class="row mb-3">
                 <div class="col-md-6">

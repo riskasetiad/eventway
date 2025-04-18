@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Alert;
 use App\Models\Order;
+use App\Models\Tiket;
 use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -24,11 +25,25 @@ class PembayaranController extends Controller
 
     public function create()
     {
+        // Cek apakah pembeli punya order yang belum dibayar
+        $userHasPendingOrder = \App\Models\Order::where('email', auth()->user()->email)
+            ->where('status_pembayaran', 'pending')
+            ->exists();
+
+        if ($userHasPendingOrder) {
+            Alert::toast('Anda memiliki pesanan yang belum dibayar!', 'warning')->autoClose(3000);
+            return redirect()->route('admin.pembayaran.index');
+        }
+
+        // Ambil data event yang memiliki tiket yang tersedia
         $events = \App\Models\Event::whereHas('tikets', function ($query) {
             $query->where('status', 'tersedia');
-        })->with(['tikets' => function ($query) {
-            $query->where('status', 'tersedia');
-        }])->get();
+        })
+            ->with(['tikets' => function ($query) {
+                $query->where('status', 'tersedia');
+            }])
+            ->where('status', 'Approved') // Menambahkan filter status event yang disetujui
+            ->get();
 
         return view('admin.pembayaran.create', compact('events'));
     }
@@ -38,25 +53,65 @@ class PembayaranController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi hanya field yang dikirim dari form
         $validated = $request->validate([
             'tiket_id'      => 'required|integer',
-            'nama_lengkap'  => 'required|string',
-            'jenis_kelamin' => 'required|string',
-            'tgl_lahir'     => 'required|date',
+            'nama_lengkap'  => 'required|string|max:255',
+            'jenis_kelamin' => 'required',
+            'tgl_lahir'     => 'required|date|before_or_equal:' . now()->subYears(16)->format('Y-m-d'),
             'email'         => 'required|email',
             'jumlah'        => 'required|integer|min:1',
-            'total_harga'   => 'required|integer',
+            'total_harga'   => 'required|integer|min:0',
+        ], [
+            'tiket_id.required'         => 'Tiket harus dipilih.',
+            'tiket_id.integer'          => 'ID Tiket tidak valid.',
+            'nama_lengkap.required'     => 'Nama lengkap wajib diisi.',
+            'nama_lengkap.string'       => 'Nama lengkap harus berupa teks.',
+            'nama_lengkap.max'          => 'Nama lengkap maksimal 255 karakter.',
+            'jenis_kelamin.required'    => 'Jenis kelamin wajib dipilih.',
+            'tgl_lahir.required'        => 'Tanggal lahir wajib diisi.',
+            'tgl_lahir.date'            => 'Format tanggal lahir tidak valid.',
+            'tgl_lahir.before_or_equal' => 'Pendaftar harus berusia minimal 16 tahun.',
+            'email.required'            => 'Email wajib diisi.',
+            'email.email'               => 'Format email tidak valid.',
+            'jumlah.required'           => 'Jumlah tiket wajib diisi.',
+            'jumlah.integer'            => 'Jumlah tiket harus berupa angka.',
+            'jumlah.min'                => 'Jumlah tiket minimal 1.',
+            'total_harga.required'      => 'Total harga wajib diisi.',
+            'total_harga.integer'       => 'Total harga harus berupa angka.',
+            'total_harga.min'           => 'Total harga tidak boleh negatif.',
         ]);
 
-                                              // Tambahkan field yang tidak ada di form tapi dibutuhkan di database
-        $validated['payment_type']      = ''; // atau sesuaikan dengan sistem kamu
+        // Ambil tiket berdasarkan ID
+        $tiket = \App\Models\Tiket::findOrFail($validated['tiket_id']);
+
+        // Cek apakah stok mencukupi
+        if ($validated['jumlah'] > $tiket->stok) {
+            return back()->withErrors(['jumlah' => 'Stok tiket tidak mencukupi.'])->withInput();
+        }
+
+        // Kurangi stok
+        $tiket->stok -= $validated['jumlah'];
+        $tiket->save();
+
+        // Tambahkan data tambahan yang tidak berasal dari form
+        $validated['payment_type']      = '';
         $validated['status_pembayaran'] = 'pending';
         $validated['status_tiket']      = 'belum ditukar';
-        $validated['snap_token']        = ''; // jika belum generate token, bisa kosong dulu
+        $validated['snap_token']        = '';
+        $validated['payment_deadline']  = now()->addMinutes(10); // Setel waktu batas pembayaran 10 menit setelah order
 
-        // Simpan ke database
-        \App\Models\Order::create($validated);
+        $order = \App\Models\Order::create($validated);
+
+        // Cek jika sudah lewat 10 menit, ubah status menjadi gagal dan kembalikan stok tiket
+        if (now()->greaterThan($order->payment_deadline)) {
+            $order->status_pembayaran = 'gagal';
+            $order->save();
+
+            // Kembalikan stok tiket
+            $tiket->stok += $order->jumlah;
+            $tiket->save();
+        }
+
         Alert::toast('Order berhasil ditambahkan!', 'success')->autoClose(3000);
         return redirect()->route('admin.pembayaran.index');
     }
@@ -91,11 +146,17 @@ class PembayaranController extends Controller
     {
         $order = Order::findOrFail($id);
 
-        // Contoh validasi untuk update status
         $request->validate([
             'status_pembayaran' => 'required|in:pending,berhasil,gagal',
             'status_tiket'      => 'required|in:sudah ditukar,belum ditukar',
         ]);
+
+        // Jika sebelumnya bukan gagal, dan sekarang jadi gagal => kembalikan stok
+        if ($order->status_pembayaran !== 'gagal' && $request->status_pembayaran === 'gagal') {
+            $tiket = $order->tiket;
+            $tiket->stok += $order->jumlah;
+            $tiket->save();
+        }
 
         $order->update([
             'status_pembayaran' => $request->status_pembayaran,
@@ -163,6 +224,90 @@ class PembayaranController extends Controller
         $order->save();
 
         return response()->json(['success' => true]);
+    }
+
+    public function formCheckout(Request $request)
+    {
+        // Ambil event_id yang sudah dipilih sebelumnya
+        $event_id = $request->event_id;
+
+        // Ambil tiket yang sesuai dengan event_id
+        $tikets = Tiket::where('event_id', $event_id)->where('status', 'tersedia')->get();
+
+        // Kirim data tiket dan event_id ke view
+        return view('guest.beli', compact('tikets', 'event_id'));
+    }
+
+    public function guestCheckout(Request $request)
+    {
+        // 1. Validasi input
+        $request->validate([
+            'nama_lengkap'  => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'tgl_lahir'     => 'required|date',
+            'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
+            'jumlah'        => 'required|integer|min:1',
+            'tiket_id'      => 'required|exists:tickets,id',
+            'total_harga'   => 'required|numeric|min:1000',
+        ]);
+
+        // 2. Ambil tiket
+        $tiket = Ticket::findOrFail($request->tiket_id);
+
+        // 3. Cek stok tiket
+        if ($tiket->stok < $request->jumlah) {
+            return back()->with('error', 'Stok tiket tidak mencukupi.');
+        }
+
+        // 4. Simpan order ke DB
+        $order = Order::create([
+            'nama'          => $request->nama_lengkap,
+            'email'         => $request->email,
+            'tgl_lahir'     => $request->tgl_lahir,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'jumlah'        => $request->jumlah,
+            'ticket_id'     => $request->tiket_id,
+            'total_harga'   => $request->total_harga,
+            'status'        => 'pending',
+        ]);
+
+        // 5. Konfigurasi Midtrans
+        Config::$serverKey    = config('midtrans.server_key');
+        Config::$isProduction = false;
+        Config::$isSanitized  = true;
+        Config::$is3ds        = true;
+
+        // 6. Buat data untuk Snap
+        $snapPayload = [
+            'transaction_details' => [
+                'order_id'     => 'INV-' . time(),
+                'gross_amount' => $order->total_harga,
+            ],
+            'customer_details'    => [
+                'first_name' => $order->nama,
+                'email'      => $order->email,
+            ],
+            'item_details'        => [
+                [
+                    'id'       => $tiket->id,
+                    'price'    => $tiket->harga,
+                    'quantity' => $order->jumlah,
+                    'name'     => $tiket->nama_tiket,
+                ],
+            ],
+        ];
+
+        // 7. Dapatkan Snap Token
+        $snapToken = Snap::getSnapToken($snapPayload);
+
+        // 8. Simpan Snap Token ke order
+        $order->update(['snap_token' => $snapToken]);
+
+        // 9. Kirim ke view untuk tampilkan Snap
+        return view('guest.checkout_snap', [
+            'snapToken' => $snapToken,
+            'order'     => $order,
+        ]);
     }
 
 }

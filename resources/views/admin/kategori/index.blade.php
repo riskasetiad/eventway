@@ -7,6 +7,16 @@
         <div class="card mb-4">
             <div class="card-header">
                 <h4 id="form-title">Tambah Kategori</h4>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
             </div>
             <div class="card-body">
                 <form id="kategori-form"
@@ -48,7 +58,7 @@
                                 <td class="text-center align-middle">{{ $index + 1 }}</td>
                                 <td class="text-center align-middle">{{ $item->kategori }}</td>
                                 <td class="text-center align-middle">
-    
+
                                     <!-- Tombol Hapus -->
                                     <form action="{{ route('kategori.destroy', $item->id) }}" method="POST"
                                         class="delete-form">
@@ -69,4 +79,3 @@
         </div>
     </div>
 @endsection
-
