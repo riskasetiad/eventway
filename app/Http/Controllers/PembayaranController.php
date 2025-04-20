@@ -228,14 +228,17 @@ class PembayaranController extends Controller
 
     public function formCheckout(Request $request)
     {
-        // Ambil event_id yang sudah dipilih sebelumnya
         $event_id = $request->event_id;
 
-        // Ambil tiket yang sesuai dengan event_id
-        $tikets = Tiket::where('event_id', $event_id)->where('status', 'tersedia')->get();
+        // Ambil tiket berdasarkan event_id
+        $tikets = Tiket::where('event_id', $event_id)
+            ->where('status', 'tersedia')
+            ->get();
 
-        // Kirim data tiket dan event_id ke view
-        return view('guest.beli', compact('tikets', 'event_id'));
+        return view('guest.beli', [
+            'tikets'   => $tikets,
+            'event_id' => $event_id, // pastikan ini dikirim
+        ]);
     }
 
     public function guestCheckout(Request $request)
@@ -247,35 +250,35 @@ class PembayaranController extends Controller
             'tgl_lahir'     => 'required|date',
             'jenis_kelamin' => 'required|in:Laki-laki,Perempuan',
             'jumlah'        => 'required|integer|min:1',
-            'tiket_id'      => 'required|exists:tickets,id',
+            'tiket_id'      => 'required|exists:tikets,id',
             'total_harga'   => 'required|numeric|min:1000',
         ]);
 
         // 2. Ambil tiket
-        $tiket = Ticket::findOrFail($request->tiket_id);
+        $tikets = Tiket::findOrFail($request->tiket_id);
 
         // 3. Cek stok tiket
-        if ($tiket->stok < $request->jumlah) {
+        if ($tikets->stok < $request->jumlah) {
             return back()->with('error', 'Stok tiket tidak mencukupi.');
         }
 
         // 4. Simpan order ke DB
         $order = Order::create([
-            'nama'          => $request->nama_lengkap,
+            'nama_lengkap'  => $request->nama_lengkap,
             'email'         => $request->email,
             'tgl_lahir'     => $request->tgl_lahir,
             'jenis_kelamin' => $request->jenis_kelamin,
             'jumlah'        => $request->jumlah,
-            'ticket_id'     => $request->tiket_id,
+            'tiket_id'      => $request->tiket_id,
             'total_harga'   => $request->total_harga,
             'status'        => 'pending',
         ]);
 
         // 5. Konfigurasi Midtrans
         Config::$serverKey    = config('midtrans.server_key');
-        Config::$isProduction = false;
-        Config::$isSanitized  = true;
-        Config::$is3ds        = true;
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized  = config('midtrans.is_sanitized');
+        Config::$is3ds        = config('midtrans.is3ds');
 
         // 6. Buat data untuk Snap
         $snapPayload = [
@@ -289,10 +292,10 @@ class PembayaranController extends Controller
             ],
             'item_details'        => [
                 [
-                    'id'       => $tiket->id,
-                    'price'    => $tiket->harga,
+                    'id'       => $tikets->id,
+                    'price'    => $tikets->harga,
                     'quantity' => $order->jumlah,
-                    'name'     => $tiket->nama_tiket,
+                    'name'     => $tikets->title,
                 ],
             ],
         ];
@@ -302,11 +305,13 @@ class PembayaranController extends Controller
 
         // 8. Simpan Snap Token ke order
         $order->update(['snap_token' => $snapToken]);
+        $event = $order->tiket->event;
 
         // 9. Kirim ke view untuk tampilkan Snap
         return view('guest.checkout_snap', [
             'snapToken' => $snapToken,
             'order'     => $order,
+            'event'     => $event,
         ]);
     }
 

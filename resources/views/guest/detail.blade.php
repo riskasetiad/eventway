@@ -80,7 +80,8 @@
                                 {{ $event->lokasi }}
                             @endif
                         </p>
-                        <a href="{{ route('guest.checkout.form') }}" class="boxed-btn mt-3">Beli Tiket</a>
+                        <a href="{{ route('guest.checkout.form', ['event_id' => $event->id]) }}"
+                            class="boxed-btn mt-3">Beli Tiket</a>
                     </div>
                 </div>
             </div>

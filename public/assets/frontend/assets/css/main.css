@@ -541,6 +541,15 @@ a.cart-btn {
     opacity: 0.8;
 }
 
+.breadcrumb-section.hero-bg {
+    padding: 100px 0;
+    background-size: cover;
+    background-position: center;
+    min-height: 550px; /* Sesuaikan dengan tinggi hero-area */
+    display: flex;
+    align-items: center;
+}
+
 /* -----------------------------------------------------------------------------
 
 # Header Styles
@@ -640,7 +649,7 @@ nav.main-menu > ul li:last-child {
 
 .site-logo {
     float: left;
-    max-width: 150px;
+    max-width: 90px;
 }
 
 ul.sub-menu li:last-child {
@@ -1087,7 +1096,7 @@ a.video-play-btn {
 
 a.video-play-btn:hover {
     background-color: #333;
-    color: #57a3ff;
+    color: #fafafa;
 }
 
 .latest-news-bg {

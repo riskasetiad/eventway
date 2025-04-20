@@ -1,16 +1,19 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use App\Models\User;
 use App\Models\Tiket;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function index()
     {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
         $user = Auth::user();
 
         if ($user->hasRole('Admin')) {
@@ -50,4 +53,5 @@ class HomeController extends Controller
         // Default fallback
         return redirect('/')->with('error', 'Role tidak dikenali.');
     }
+
 }

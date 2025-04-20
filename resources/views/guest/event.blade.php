@@ -6,8 +6,8 @@
             <div class="row">
                 <div class="col-lg-8 offset-lg-2 text-center">
                     <div class="breadcrumb-text">
-                        <p>Fresh and Organic</p>
-                        <h1>Shop</h1>
+                        <p>Temukan Pengalaman Tak Terlupakan</p>
+                        <h1>Event Kami</h1>
                     </div>
                 </div>
             </div>
@@ -16,8 +16,76 @@
     <!-- end breadcrumb section -->
 
     <!-- products -->
-    <div class="product-section mt-150 mb-150">
+    <div class="product-section mt-80 mb-150">
         <div class="container">
+            <!-- Filter Form -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <form method="GET" action="{{ route('guest.event') }}" class="row g-3 justify-content-center">
+                        <!-- Filter Kota -->
+                        <div class="col-md-4">
+                            <select name="kota" class="custom-filter-control">
+                                <option value="">-- Semua Kota --</option>
+                                @foreach ($kotas as $kota)
+                                    <option value="{{ $kota }}" {{ request('kota') == $kota ? 'selected' : '' }}>
+                                        {{ $kota }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Filter Harga -->
+                        <div class="col-md-4">
+                            <select name="harga" class="custom-filter-control">
+                                <option value="">-- Urutkan Harga --</option>
+                                <option value="asc" {{ request('harga') == 'asc' ? 'selected' : '' }}>Harga Terendah
+                                </option>
+                                <option value="desc" {{ request('harga') == 'desc' ? 'selected' : '' }}>Harga Tertinggi
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Tombol Terapkan -->
+                        <div class="col-md-2">
+                            <button type="submit" class="filter-btn active w-100">Terapkan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tambahan CSS -->
+            <style>
+                .custom-filter-control {
+                    width: 100%;
+                    padding: 12px 24px;
+                    border-radius: 999px;
+                    background-color: white;
+                    border: 2px solid #ccc;
+                    font-weight: bold;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    height: 48px;
+                    /* Samakan dengan tombol */
+                    appearance: none;
+                    transition: all 0.3s ease;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .custom-filter-control:focus {
+                    border-color: #88bdff;
+                    box-shadow: 0 0 0 2px rgba(136, 189, 255, 0.2);
+                    outline: none;
+                }
+
+                /* Optional: buat panah dropdown biar lebih modern */
+                .custom-filter-control::-ms-expand {
+                    display: none;
+                }
+            </style>
+
+
 
             <!-- Filter Kategori -->
             <div class="row">
@@ -100,7 +168,7 @@
         }
 
         .filter-btn.active {
-            background-color:#88bdff;
+            background-color: #88bdff;
             color: white;
         }
     </style>

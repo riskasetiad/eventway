@@ -27,7 +27,7 @@
                 <div class="footer-box pages">
                     <h2 class="widget-title">Navigasi</h2>
                     <ul>
-                        <li><a href="{{ route('home') }}">Beranda</a></li>
+                        <li><a href="{{ route('guest.home') }}">Beranda</a></li>
                         <li><a href="{{ route('guest.about') }}">Tentang</a></li>
                         <li><a href="{{ route('guest.event') }}">Event</a></li>
                         <li><a href="{{ route('guest.kontak') }}">Kontak</a></li>

@@ -1,19 +1,26 @@
 @extends('layouts.guest.template')
 @section('content')
-    <!-- breadcrumb-section -->
-    <div class="breadcrumb-section hero-bg">
+    <!-- hero area for About -->
+    <div class="hero-area hero-bg">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 offset-lg-2 text-center">
-                    <div class="breadcrumb-text">
-                        <p>Fresh and Organic</p>
-                        <h1>Shop</h1>
+                <div class="col-lg-9 offset-lg-2 text-center">
+                    <div class="hero-text">
+                        <div class="hero-text-tablecell">
+                            <p class="subtitle">Mengenal Lebih Dekat</p>
+                            <p
+                                style="color: white; font-size: 55px; font-weight: 700; line-height: 1.2; margin-bottom: 30px;">
+                                Tentang Kami</p>
+                            <div class="hero-btns">
+                                <a href="{{ route('guest.kontak') }}" class="bordered-btn">Hubungi Kami</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- end breadcrumb section -->
+
     <!-- featured section -->
     <div class="feature-bg">
         <div class="container">

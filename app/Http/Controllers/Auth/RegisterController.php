@@ -31,6 +31,11 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function showRegistrationForm()
+    {
+        return view('auth.register'); // Pastikan Anda memiliki file register.blade.php di resources/views/auth
+    }
+
     /**
      * Get a validator for an incoming registration request.
      *
@@ -71,7 +76,7 @@ class RegisterController extends Controller
         // Berikan role "user" ke pengguna baru
         try {
             DB::transaction(function () use ($user) {
-                $user->assignRole('user');
+                $user->assignRole('User');
             });
         } catch (\Exception $e) {
             Log::error('Gagal memberikan role user: ' . $e->getMessage());

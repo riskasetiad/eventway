@@ -14,7 +14,7 @@
                                 EventWay - Wujudkan Acara yang Tak Terlupakan</p>
                             <div class="hero-btns">
                                 <a href="{{ route('guest.event') }}" class="boxed-btn">Lihat Event</a>
-                                <a href="contact.html" class="bordered-btn">Hubungi Kami</a>
+                                <a href="{{ route('guest.kontak') }}" class="bordered-btn">Hubungi Kami</a>
                             </div>
                         </div>
                     </div>
@@ -264,7 +264,7 @@
                             Temukan, daftar, dan nikmati pengalaman tak terlupakan bersama kami.</p>
                         <p>Dengan jaringan event organizer profesional, kami memastikan setiap acara yang kami tampilkan
                             memiliki kualitas terbaik dan memberikan pengalaman yang berkesan.</p>
-                        <a href="{{route('guest.about')}}" class="boxed-btn mt-4">Selengkapnya</a>
+                        <a href="{{ route('guest.about') }}" class="boxed-btn mt-4">Selengkapnya</a>
                     </div>
                 </div>
             </div>

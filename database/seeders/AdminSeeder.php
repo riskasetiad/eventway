@@ -24,6 +24,7 @@ class AdminSeeder extends Seeder
             'category_create', 'category_read', 'category_update', 'category_delete',
             'event_create', 'event_read', 'event_update', 'event_delete',
             'ticket_create', 'ticket_read', 'ticket_update', 'ticket_delete',
+            'pembayaran_read', 'pembayaran_update', 'pembayaran_process',
         ];
 
         foreach ($permissions as $perm) {

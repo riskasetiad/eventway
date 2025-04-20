@@ -27,7 +27,7 @@
                 <ul id="side-menu">
                     <!-- Dashboard -->
                     <li>
-                        <a href="{{ route('home') }}">
+                        <a href="{{ route('admin.home') }}">
                             <i class="fi fi-rs-home"></i>
                             <span> Dashboard </span>
                         </a>
@@ -84,6 +84,12 @@
                             <a href="{{ route('admin.penyelenggara.index') }}">
                                 <i class="fi fi-rs-member-list"></i>
                                 <span> Akun </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.pesan.index') }}">
+                                <i class="fi fi-rs-member-list"></i>
+                                <span> Pesan </span>
                             </a>
                         </li>
                     @endif

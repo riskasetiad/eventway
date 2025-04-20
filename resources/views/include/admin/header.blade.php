@@ -1,4 +1,8 @@
 <!-- Topbar Start -->
+@php
+    use Illuminate\Support\Facades\Auth;
+    $user = Auth::user();
+@endphp
 <div class="topbar-custom">
     <div class="container-fluid">
         <div class="d-flex justify-content-between">
@@ -21,10 +25,10 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ asset('assets/images/users/user-11.jpg') }}" alt="user-image"
-                            class="rounded-circle">
+                        <img src="{{ $user && $user->image ? asset('storage/' . $user->image) : asset('assets/images/users/default.jpg') }}"
+                            alt="user-image" class="rounded-circle" height="36">
                         <span class="pro-user-name ms-1">
-                            Christian <i class="mdi mdi-chevron-down"></i>
+                            {{ $user ? $user->name : 'Guest' }} <i class="mdi mdi-chevron-down"></i>
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end profile-dropdown">

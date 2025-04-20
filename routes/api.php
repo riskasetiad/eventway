@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\PembayaranController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\KategoriController;
 use App\Http\Controllers\Api\AuthController;

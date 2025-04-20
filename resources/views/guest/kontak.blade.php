@@ -1,7 +1,7 @@
 @extends('layouts.guest.template')
 @section('content')
     <!-- breadcrumb-section -->
-    <div class="breadcrumb-section breadcrumb-bg">
+    <div class="breadcrumb-section hero-bg">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 offset-lg-2 text-center">
@@ -14,7 +14,6 @@
         </div>
     </div>
     <!-- end breadcrumb section -->
-
     <!-- contact form -->
     <div class="contact-from-section mt-150 mb-150">
         <div class="container">
@@ -27,17 +26,18 @@
                     </div>
                     <div id="form_status"></div>
                     <div class="contact-form">
-                        <form type="POST" id="eventway-contact" onSubmit="return valid_datas( this );">
+                        <form method="POST" action="{{ route('kontak.store') }}">
+                            @csrf
                             <p>
-                                <input type="text" placeholder="Nama" name="name" id="name">
+                                <input type="text" placeholder="Nama" name="nama" id="nama">
                                 <input type="email" placeholder="Email" name="email" id="email">
                             </p>
                             <p>
-                                <input type="tel" placeholder="Telepon" name="phone" id="phone">
-                                <input type="text" placeholder="Subjek" name="subject" id="subject">
+                                <input type="tel" placeholder="Telepon" name="telepon" id="telepon">
+                                <input type="text" placeholder="Subjek" name="subjek" id="subjek">
                             </p>
                             <p>
-                                <textarea name="message" id="message" cols="30" rows="10" placeholder="Pesan Anda"></textarea>
+                                <textarea name="pesan" id="pesan" cols="30" rows="10" placeholder="Pesan Anda"></textarea>
                             </p>
                             <input type="hidden" name="token" value="FsWga4&@f6aw" />
                             <p><input type="submit" value="Kirim Pesan"></p>

@@ -31,6 +31,9 @@
                                      <a class="mobile-hide search-bar-icon" href="#" onclick="toggleSearch()">
                                          <i class="fas fa-search"></i>
                                      </a>
+                                     <a class="mobile-hide register-icon" href="{{route('register')}}">
+                                         <i class="fas fa-user-plus"></i>
+                                     </a>
                                  </div>
                              </li>
                          </ul>

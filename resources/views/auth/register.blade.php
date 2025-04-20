@@ -113,7 +113,7 @@
 
                                             <div class="text-center text-muted">
                                                 <p class="mb-0">Already have an account?
-                                                    <a class='text-primary ms-2 fw-medium' href='auth-login.html'>Login
+                                                    <a class='text-primary ms-2 fw-medium' href="{{route('login')}}">Login
                                                         here</a>
                                                 </p>
                                             </div>

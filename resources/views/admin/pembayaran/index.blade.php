@@ -51,7 +51,7 @@
                             </td>
                             <td class="text-center align-middle">
                                 @if ($order->status_pembayaran === 'pending')
-                                    <form action="{{ route('admin.admin.pembayaran.bayar', $order->id) }}" method="POST"
+                                    <form action="{{ route('admin.pembayaran.bayar', $order->id) }}" method="POST"
                                         class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success btn-sm">Bayar</button>

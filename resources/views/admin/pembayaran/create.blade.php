@@ -8,7 +8,7 @@
             @csrf
 
             <div class="mb-3">
-                <label for="eventSelect"id="eventSelect" class="form-label">Pilih Event</label>
+                <label for="eventSelect" class="form-label">Pilih Event</label>
                 <select name="event_id" id="eventSelect" class="form-select" required>
                     <option value="">-- Pilih Event --</option>
                     @foreach ($events as $event)
@@ -104,82 +104,76 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-
             const events = @json($events);
-            console.log('Events from backend:', events); // ⬅️ Tambahkan ini
-
-            const oldTiketId = "{{ old('tiket_id') }}";
-            const eventSelect = document.getElementById('eventSelect');
-            const tiketSelect = document.getElementById('tiketSelect');
-            const hargaTiketInput = document.getElementById('hargaTiket');
-            const jumlahTiketInput = document.getElementById('jumlahTiket');
-            const totalHargaInput = document.querySelector('input[name="total_harga"]');
-
-            function populateTiketOptions(eventId) {
-                console.log('populateTiketOptions triggered with eventId:', eventId);
-
-                tiketSelect.innerHTML = '<option value="">-- Pilih Tiket --</option>';
-                const selectedEvent = events.find(event => event.id == eventId);
-
-                console.log('Selected Event:', selectedEvent);
-
-                if (selectedEvent) {
-                    selectedEvent.tikets.forEach(tiket => {
-                        console.log('Checking tiket:', tiket);
-                        if ((tiket.status || '').toLowerCase().trim() === 'tersedia') {
-                            const option = document.createElement('option');
-                            option.value = tiket.id;
-                            option.textContent = tiket.title;
-                            option.dataset.harga = tiket.harga;
-
-                            if (tiket.id == oldTiketId) {
-                                option.selected = true;
-                            }
-
-                            tiketSelect.appendChild(option);
-                        }
-                    });
-                }
-
-                updateHargaDanTotal();
-            }
-
-            function updateHargaDanTotal() {
-                const selectedTiket = tiketSelect.options[tiketSelect.selectedIndex];
-                const harga = parseInt(selectedTiket?.dataset?.harga || 0);
-                const jumlah = parseInt(jumlahTiketInput.value || 0);
-
-                hargaTiketInput.value = harga || '';
-
-                if (harga > 0 && jumlah > 0) {
-                    totalHargaInput.value = harga * jumlah;
-                } else {
-                    totalHargaInput.value = '';
-                }
-            }
-
-            eventSelect.addEventListener('change', function() {
-                populateTiketOptions(this.value);
-            });
-
-            tiketSelect.addEventListener('change', updateHargaDanTotal);
-            jumlahTiketInput.addEventListener('input', updateHargaDanTotal);
-
-            // Trigger on page load if old values exist
+            console.log("DATA EVENTS:", events);
             document.addEventListener('DOMContentLoaded', () => {
+                const events = @json($events);
+                const oldTiketId = "{{ old('tiket_id') }}";
+
+                const eventSelect = document.getElementById('eventSelect');
+                const tiketSelect = document.getElementById('tiketSelect');
+                const hargaTiketInput = document.getElementById('hargaTiket');
+                const jumlahTiketInput = document.getElementById('jumlahTiket');
+                const totalHargaInput = document.querySelector('input[name="total_harga"]');
+
+                function populateTiketOptions(eventId) {
+                    tiketSelect.innerHTML = '<option value="">-- Pilih Tiket --</option>';
+                    const selectedEvent = events.find(event => event.id == eventId);
+
+                    if (selectedEvent && selectedEvent.tikets) {
+                        selectedEvent.tikets.forEach(tiket => {
+                            if ((tiket.status || '').toLowerCase().trim() === 'tersedia') {
+                                const option = document.createElement('option');
+                                option.value = tiket.id;
+                                option.textContent = tiket.title;
+                                option.dataset.harga = tiket.harga;
+
+                                if (tiket.id == oldTiketId) {
+                                    option.selected = true;
+                                }
+
+                                tiketSelect.appendChild(option);
+                            }
+                        });
+                    }
+
+                    updateHargaDanTotal();
+                }
+
+                function updateHargaDanTotal() {
+                    const selectedTiket = tiketSelect.options[tiketSelect.selectedIndex];
+                    const harga = parseInt(selectedTiket?.dataset?.harga || 0);
+                    const jumlah = parseInt(jumlahTiketInput.value || 0);
+
+                    hargaTiketInput.value = harga || '';
+
+                    if (harga > 0 && jumlah > 0) {
+                        totalHargaInput.value = harga * jumlah;
+                    } else {
+                        totalHargaInput.value = '';
+                    }
+                }
+
+                eventSelect.addEventListener('change', function() {
+                    populateTiketOptions(this.value);
+                });
+
+                tiketSelect.addEventListener('change', updateHargaDanTotal);
+                jumlahTiketInput.addEventListener('input', updateHargaDanTotal);
+
+                // Trigger awal kalau ada old value
                 if (eventSelect.value) {
                     populateTiketOptions(eventSelect.value);
                 }
-            });
 
-            // Prevent submit if tiket belum dipilih
-            document.getElementById('orderForm').addEventListener('submit', function(e) {
-                if (!tiketSelect.value) {
-                    e.preventDefault();
-                    alert('Silakan pilih tiket terlebih dahulu.');
-                }}
-            })
+                // Validasi submit
+                document.getElementById('orderForm').addEventListener('submit', function(e) {
+                    if (!tiketSelect.value) {
+                        e.preventDefault();
+                        alert('Silakan pilih tiket terlebih dahulu.');
+                    }
+                });
+            });
         </script>
     @endpush
 @endsection

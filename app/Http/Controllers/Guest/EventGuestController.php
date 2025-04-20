@@ -68,29 +68,65 @@ class EventGuestController extends Controller
     public function index(Request $request)
     {
         $query = Event::with(['kategoris', 'tikets'])
-            ->where('status', 'approved')
-            ->latest();
+            ->where('status', 'approved');
 
+        // Urutkan berdasarkan tanggal terdekat
+        $query->orderBy('tgl_mulai', 'asc');
+
+        // Filter kategori (via JS)
         if ($request->filled('kategori')) {
             $query->whereHas('kategoris', function ($q) use ($request) {
                 $q->where('kategori_id', $request->kategori);
             });
         }
 
+        // Filter kota
+        if ($request->filled('kota')) {
+            $query->where('kota', $request->kota);
+        }
+
+        // Filter pencarian
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        $events = $query->paginate(6);
+        // Ambil semua event
+        $events = $query->get();
 
-        $events->getCollection()->transform(function ($event) {
+        // Hitung harga terendah dari tiket
+        $events->transform(function ($event) {
             $event->harga = $event->tikets->min('harga');
             return $event;
         });
 
-        $categories = Kategori::all();
+        // Urutkan manual berdasarkan harga jika filter harga diisi
+        if ($request->filled('harga')) {
+            $events = $request->harga === 'asc'
+            ? $events->sortBy('harga')->values()
+            : $events->sortByDesc('harga')->values();
+        }
 
-        return view('guest.event', compact('events', 'categories'));
+        // Paginate manual (6 per halaman)
+        $page        = $request->input('page', 1);
+        $perPage     = 6;
+        $pagedEvents = $events->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $paginatedEvents = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pagedEvents,
+            $events->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $categories = Kategori::all();
+        $kotas      = Event::select('kota')->distinct()->pluck('kota');
+
+        return view('guest.event', [
+            'events'     => $paginatedEvents,
+            'categories' => $categories,
+            'kotas'      => $kotas,
+        ]);
     }
 
     public function about()
