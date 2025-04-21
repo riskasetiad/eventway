@@ -1,113 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
-
     <meta charset="utf-8" />
-    <title>EventWay</title>
+    <title>Login | EventWay</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc." />
+    <meta name="description" content="Tema admin lengkap" />
     <meta name="author" content="Zoyothemes" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <!-- App favicon -->
+    <!-- Favicon Aplikasi -->
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 
-    <!-- App css -->
+    <!-- CSS Aplikasi -->
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
-
-    <!-- Icons -->
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
 
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .account-page-bg {
+            position: relative;
+            background-image: url('{{ asset('assets/images/bg-auth.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .account-page-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.564); 
+            z-index: 1;
+        }
+
+        .login-form-wrapper {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+
+        .login-form-wrapper h3,
+        .login-form-wrapper p {
+            color: #fff;
+        }
+
+        .form-group label {
+            color: #fff;
+        }
+
+        .d-grid .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+    </style>
 </head>
 
-<body class="bg-color">
+<body>
+    <div class="account-page-bg d-flex align-items-center justify-content-center">
+        <div class="login-form-wrapper">
 
-    <!-- Begin page -->
-    <div class="container-fluid">
-        <div class="row vh-100">
-            <div class="col-12">
-                <div class="p-0">
-                    <div class="row d-flex align-items-center">
-                        <div class="col-md-6 col-xl-6 col-lg-6">
-                            <div class="row">
-                                <div class="col-md-6 mx-auto">
-                                    <div class="mb-0 border-0">
-                                        <div class="p-0">
-                                            <div class="text-center">
-                                                <div class="mb-4">
-                                                    <a href="{{ route('home') }}" class="auth-logo">
-                                                        <img src="{{ asset('assets/images/logo-dark.png') }}"
-                                                            alt="logo-dark" class="mx-auto" height="28" />
-                                                    </a>
-                                                </div>
-
-                                                <div class="auth-title-section mb-3">
-                                                    <h3 class="text-dark fs-20 fw-medium mb-2">Welcome back</h3>
-                                                    <p class="text-dark text-capitalize fs-14 mb-0">Please enter your
-                                                        details.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="pt-0">
-                                            <form action="{{ route('login') }}" method="POST" class="my-4">
-                                                @csrf
-                                                <div class="form-group mb-3">
-                                                    <label for="email" class="form-label">Email address</label>
-                                                    <input type="email" class="form-control form-control-lg"
-                                                        placeholder="Email" aria-label="Email" name="email">
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <label for="password" class="form-label">Password</label>
-                                                    <input type="password" class="form-control form-control-lg"
-                                                        placeholder="Password" aria-label="Password" name="password">
-
-                                                </div>
-
-                                                {{-- <div class="form-group d-flex mb-3">
-                                                        <div class="col-sm-6">
-                                                            <div class="form-check">
-                                                                <input type="checkbox" class="form-check-input" id="checkbox-signin" checked>
-                                                                <label class="form-check-label" for="checkbox-signin">Remember me</label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-sm-6 text-end">
-                                                            <a class='text-muted fs-14' href='auth-recoverpw.html'>Forgot password?</a>
-                                                        </div>
-                                                    </div> --}}
-
-                                                <div class="form-group mb-0 row">
-                                                    <div class="col-12">
-                                                        <div class="d-grid">
-                                                            <button class="btn btn-primary" type="submit"> Log In
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
-                                            <div class="text-center text-muted">
-                                                <p class="mb-0">Don't have an account ?<a
-                                                        class='text-primary ms-2 fw-medium'
-                                                        href='auth-register.html'>Sign Up</a></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            class="col-md-6 col-xl-6 col-lg-6 p-0 vh-100 d-flex justify-content-center account-page-bg">
-                        </div>
-                    </div>
-                </div>
+            <div class="text-center mb-4">
+                <a href="{{ route('home') }}" class="auth-logo">
+                    <img src="{{ asset('assets/images/logo-dark.png') }}" alt="logo-dark" height="50" />
+                </a>
+                <h3 class="text-light mt-3">Selamat datang kembali</h3>
+                <p class="text-light">Silakan masukkan detail Anda</p>
             </div>
+
+            <form action="{{ route('login') }}" method="POST">
+                @csrf
+
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">Alamat Email</label>
+                    <input type="email" class="form-control" placeholder="Email" name="email" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Kata Sandi</label>
+                    <input type="password" class="form-control" placeholder="Kata Sandi" name="password" required>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button class="btn btn-primary" type="submit">Masuk</button>
+                </div>
+
+                <div class="text-center text-muted">
+                    <p class="mb-0 text-light">Belum punya akun?
+                        <a href="{{ route('register') }}" class="text-primary ms-2 fw-medium">Daftar di sini</a>
+                    </p>
+                </div>
+            </form>
 
         </div>
     </div>
-    <!-- END wrapper -->
 
     <!-- Vendor -->
     <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
@@ -117,10 +123,7 @@
     <script src="{{ asset('assets/libs/waypoints/lib/jquery.waypoints.min.js') }}"></script>
     <script src="{{ asset('assets/libs/jquery.counterup/jquery.counterup.min.js') }}"></script>
     <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
-
-    <!-- App js-->
     <script src="{{ asset('assets/js/app.js') }}"></script>
-
 </body>
 
 </html>

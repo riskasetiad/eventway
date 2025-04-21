@@ -58,7 +58,7 @@
                                     Detail
                                 </button>
 
-                                <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-sm btn-primary">
+                                 <a href="{{ auth()->user()->can('view_admin') ? route('admin.events.edit') : route('events.edit') }}" class="btn btn-sm btn-primary">
                                     Edit
                                 </a>
 

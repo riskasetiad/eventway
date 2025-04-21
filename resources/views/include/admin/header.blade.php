@@ -25,8 +25,8 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ $user && $user->image ? asset('storage/' . $user->image) : asset('assets/images/users/default.jpg') }}"
-                            alt="user-image" class="rounded-circle" height="36">
+                        <img src="{{ $user->image ? asset('storage/profile_images/' . $user->image) : asset('images/default.png') }}"
+                            width="100">
                         <span class="pro-user-name ms-1">
                             {{ $user ? $user->name : 'Guest' }} <i class="mdi mdi-chevron-down"></i>
                         </span>

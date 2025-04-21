@@ -1,19 +1,15 @@
 @extends('layouts.guest.template')
 @section('content')
     <!-- hero area for About -->
-    <div class="hero-area hero-bg">
+    <div class="breadcrumb-section hero-bg">
         <div class="container">
             <div class="row">
-                <div class="col-lg-9 offset-lg-2 text-center">
-                    <div class="hero-text">
-                        <div class="hero-text-tablecell">
-                            <p class="subtitle">Mengenal Lebih Dekat</p>
-                            <p
-                                style="color: white; font-size: 55px; font-weight: 700; line-height: 1.2; margin-bottom: 30px;">
-                                Tentang Kami</p>
-                            <div class="hero-btns">
-                                <a href="{{ route('guest.kontak') }}" class="bordered-btn">Hubungi Kami</a>
-                            </div>
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="breadcrumb-text">
+                        <p>Mengenal Lebih Dekat</p>
+                        <h1>Tentang Kami</h1>
+                        <div class="hero-btns">
+                            <a href="{{ route('guest.kontak') }}" class="bordered-btn">Hubungi Kami</a>
                         </div>
                     </div>
                 </div>

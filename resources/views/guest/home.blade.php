@@ -1,27 +1,24 @@
-@extends('layouts.guest.template') {{-- Atau bikin layout khusus guest kalau mau beda gaya --}}
-
+@extends('layouts.guest.template')
 @section('content')
     <!-- hero area -->
-    <div class="hero-area hero-bg">
+    </div>
+    <div class="breadcrumb-section hero-bg">
         <div class="container">
             <div class="row">
-                <div class="col-lg-9 offset-lg-2 text-center">
-                    <div class="hero-text">
-                        <div class="hero-text-tablecell">
-                            <p class="subtitle">Setiap Momen Punya Cerita</p>
-                            <p
-                                style="color: white; font-size: 55px; font-weight: 700; line-height: 1.2; margin-bottom: 30px;">
-                                EventWay - Wujudkan Acara yang Tak Terlupakan</p>
-                            <div class="hero-btns">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="breadcrumb-text">
+                        <p>Setiap Momen Punya Cerita</p>
+                        <h1>EventWay - Wujudkan Acara yang Tak Terlupakan</h1>
+                        <div class="hero-btns">
                                 <a href="{{ route('guest.event') }}" class="boxed-btn">Lihat Event</a>
                                 <a href="{{ route('guest.kontak') }}" class="bordered-btn">Hubungi Kami</a>
                             </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- end hero area -->
 
     <!-- features list section -->
