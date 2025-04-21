@@ -27,14 +27,17 @@
                         <td class="text-center align-middle">{{ $tiket->stok }}</td>
                         <td class="text-center align-middle">{{ ucfirst($tiket->status) }}</td>
                         <td class="text-center align-middle">
-                            <a href="{{ route('admin.tiket.edit', $tiket->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('admin.tiket.destroy', $tiket->id) }}" method="POST"
-                                class="d-inline delete-form">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn btn-sm btn-danger btn-delete"
-                                    data-id="{{ $tiket->id }}">Hapus</button>
-                            </form>
+                            @if ($tiket->event && $tiket->event->user_id === auth()->id())
+                                <a href="{{ route('admin.tiket.edit', $tiket->id) }}"
+                                    class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ route('admin.tiket.destroy', $tiket->id) }}" method="POST"
+                                    class="d-inline delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-sm btn-danger btn-delete"
+                                        data-id="{{ $tiket->id }}">Hapus</button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

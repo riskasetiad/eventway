@@ -59,7 +59,21 @@
                         style="width: 150px; height: 150px; object-fit: cover;">
                 @endif
             </div>
+            <div class="mb-3">
+                <label for="proposal" class="form-label">Upload Proposal (PDF)</label>
+                <input type="file" class="form-control" name="proposal" accept="application/pdf">
 
+                @if ($event->proposal)
+                    <p class="mt-2">
+                        <strong>Proposal saat ini:</strong>
+                        <a href="{{ asset($event->proposal) }}" target="_blank">Lihat Proposal</a>
+                    </p>
+                @endif
+
+                @error('proposal')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="tgl_mulai" class="form-label">Tanggal Mulai</label>
@@ -113,7 +127,8 @@
 
 
             <button type="submit" class="btn btn-primary">Update Event</button>
-            <a href="{{ route('admin.events.index') }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ auth()->user()->can('view_admin') ? route('admin.events.index') : route('events.index') }}"
+                class="btn btn-secondary">Kembali</a>
         </form>
     </div>
     @push('scripts')

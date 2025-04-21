@@ -31,19 +31,29 @@ class MidtransWebhookController extends Controller
         $transactionStatus = $notif['transaction_status'];
 
         if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-            $order->update([
-                'status_pembayaran' => 'berhasil',
-                'status_tiket'      => 'belum ditukar',
-            ]);
+            // Pastikan status pembayaran berhasil
+            if ($order->status_pembayaran != 'berhasil') {
+                $order->update([
+                    'status_pembayaran' => 'berhasil',
+                    'status_tiket'      => 'belum ditukar', // Tiket belum ditukar ketika pembayaran berhasil
+                ]);
 
-            // Kirim email hanya jika pembayaran berhasil
-            Mail::to($order->email)->send(new TiketBerhasilDibeli($order));
+                // Kirim email hanya jika pembayaran berhasil
+                Mail::to($order->email)->send(new TiketBerhasilDibeli($order));
+            }
         } elseif ($transactionStatus == 'pending') {
-            $order->update(['status_pembayaran' => 'pending']);
+            // Status pembayaran masih pending
+            if ($order->status_pembayaran != 'pending') {
+                $order->update(['status_pembayaran' => 'pending']);
+            }
         } elseif (in_array($transactionStatus, ['expire', 'cancel', 'deny'])) {
-            $order->update(['status_pembayaran' => 'gagal']);
+            // Status pembayaran gagal
+            if ($order->status_pembayaran != 'gagal') {
+                $order->update(['status_pembayaran' => 'gagal']);
+            }
         }
 
         return response()->json(['message' => 'Webhook processed successfully']);
     }
+
 }

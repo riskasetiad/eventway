@@ -16,6 +16,7 @@
                 <tr class="text-center">
                     <th>#</th>
                     <th>Gambar</th>
+                    <th>Proposal</th>
                     <th>Judul</th>
                     <th>Penyelenggara</th>
                     <th>Deskripsi</th>
@@ -30,6 +31,13 @@
                         <td class="text-center align-middle">
                             <img src="{{ asset($event->image) }}" alt="Gambar Event"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                        </td>
+                        <td class="text-center align-middle">
+                            @if ($event->proposal)
+                                <a href="{{ asset($event->proposal) }}" target="_blank">Lihat Proposal</a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                         </td>
                         <td class="text-center align-middle">{{ $event->title }}</td>
                         <td class="text-center align-middle">

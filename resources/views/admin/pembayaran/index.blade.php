@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="container mt-4">
-        <h2 class="mb-4">Daftar Pembayaran</h2>
+        <h2 class="mb-4">Daftar Pemesanan</h2>
 
-        <a href="{{ route('admin.pembayaran.create') }}" class="btn btn-primary mb-3">+ Tambah Order</a>
+        {{-- <a href="{{ route('admin.pembayaran.create') }}" class="btn btn-primary mb-3">+ Tambah Order</a> --}}
 
         @if ($orders->isEmpty())
             <div class="alert alert-info">Belum ada data pembayaran.</div>
@@ -50,18 +50,27 @@
                                 </span>
                             </td>
                             <td class="text-center align-middle">
-                                @if ($order->status_pembayaran === 'pending')
+                                {{-- @if ($order->status_pembayaran === 'pending')
                                     <form action="{{ route('admin.pembayaran.bayar', $order->id) }}" method="POST"
                                         class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-success btn-sm">Bayar</button>
                                     </form>
-                                @endif
+                                @endif --}}
 
-                                <a href="{{ route('admin.pembayaran.show', $order->id) }}"
+                                <a href="{{ auth()->user()->hasRole('Admin')
+                                    ? route('admin.pembayaran.show', $order->id)
+                                    : route('pembayaran.show', $order->id) }}"
                                     class="btn btn-info btn-sm">Detail</a>
+                                @php
+                                    $eventUserId = optional($order->tiket->event)->user_id;
+                                @endphp
 
-                                @if ($order->status_pembayaran === 'berhasil' && $order->status_tiket !== 'sudah ditukar')
+                                @if (
+                                    $order->status_pembayaran === 'berhasil' &&
+                                        $order->status_tiket !== 'sudah ditukar' &&
+                                        $eventUserId &&
+                                        auth()->id() === $eventUserId)
                                     <button class="btn btn-warning btn-sm mt-1"
                                         onclick="showEditModal('{{ $order->id }}', '{{ $order->status_tiket }}')">
                                         Edit Status

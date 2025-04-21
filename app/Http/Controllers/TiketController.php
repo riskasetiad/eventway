@@ -20,8 +20,12 @@ class TiketController extends Controller
     public function create()
     {
         $events = Event::where('status', 'approved')
-            ->where('user_id', auth()->id()) // Hanya event milik user
+            ->where('user_id', auth()->id()) // Cegah admin bikin tiket bukan milik dia
             ->get();
+
+        if ($events->isEmpty()) {
+            abort(403, 'Kamu tidak memiliki event untuk membuat tiket.');
+        }
 
         return view('admin.tiket.create', compact('events'));
     }
@@ -72,12 +76,17 @@ class TiketController extends Controller
 
     public function edit(Tiket $tiket)
     {
+        if ($tiket->event->user_id !== auth()->id()) {
+            abort(403, 'Kamu tidak berhak mengedit tiket ini.');
+        }
+
         $events = Event::where('status', 'approved')
-            ->where('user_id', auth()->id()) // Hanya event milik user
+            ->where('user_id', auth()->id())
             ->get();
 
         return view('admin.tiket.edit', compact('tiket', 'events'));
     }
+
     public function update(Request $request, Tiket $tiket)
     {
         $request->validate([
@@ -101,6 +110,10 @@ class TiketController extends Controller
 
     public function destroy(Tiket $tiket)
     {
+        if ($tiket->event->user_id !== auth()->id()) {
+            abort(403, 'Kamu tidak berhak menghapus tiket ini.');
+        }
+
         $tiket->delete();
 
         Alert::toast('Tiket berhasil dihapus!', 'success')->autoClose(3000);

@@ -25,8 +25,8 @@
                 <li class="dropdown notification-list topbar-dropdown">
                     <a class="nav-link dropdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="{{ $user->image ? asset('storage/profile_images/' . $user->image) : asset('images/default.png') }}"
-                            width="100">
+                        {{-- <img src="{{ $user->image ? asset('storage/profile_images/' . $user->image) : asset('images/default.png') }}"
+                            width="100"> --}}
                         <span class="pro-user-name ms-1">
                             {{ $user ? $user->name : 'Guest' }} <i class="mdi mdi-chevron-down"></i>
                         </span>
@@ -35,10 +35,6 @@
                         <div class="dropdown-header noti-title">
                             <h6 class="text-overflow m-0">Welcome !</h6>
                         </div>
-                        <a href="contacts-profile.html" class="dropdown-item notify-item">
-                            <i class="mdi mdi-account-circle-outline fs-16 align-middle"></i>
-                            <span>My Account</span>
-                        </a>
                         <div class="dropdown-divider"></div>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                             @csrf

@@ -6,7 +6,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="card-title m-0">Detail Pembayaran</h4>
-                    <a href="{{ route('admin.pembayaran.index') }}" class="btn btn-secondary">
+                    <a href="{{ auth()->user()->hasRole('Admin') ? route('admin.pembayaran.index') : route('pembayaran.index') }}"
+                        class="btn btn-secondary">
                         &larr; Kembali
                     </a>
                 </div>

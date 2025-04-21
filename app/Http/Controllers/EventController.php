@@ -33,7 +33,7 @@ class EventController extends Controller
     public function show($id)
     {
         $event = Event::with('kategoris', 'tikets')->find($id);
- 
+
         if (! $event) {
             return response()->json(['message' => 'Event not found'], 404);
         }
@@ -49,12 +49,19 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
+        // Menentukan aturan validasi berdasarkan hak akses
+        $tglMulaiRule = auth()->user()->can('view_admin')
+        ? 'required|date'
+        : 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d');
+
+        // Validasi input dari form
         $request->validate([
             'title'         => 'required|string|max:255',
             'image'         => 'required|image|mimes:jpeg,png,jpg|max:10240',
+            'proposal'      => 'nullable|mimes:pdf|max:5120',
             'kategori_id'   => 'required|array|min:1',
             'kategori_id.*' => 'exists:kategoris,id',
-            'tgl_mulai'     => 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d'),
+            'tgl_mulai'     => $tglMulaiRule,
             'tgl_selesai'   => 'required|date|after_or_equal:tgl_mulai',
             'kota'          => 'required|string',
             'lokasi'        => 'required|string',
@@ -64,13 +71,24 @@ class EventController extends Controller
             'waktu_selesai' => 'required|after:waktu_mulai',
         ]);
 
+        // Proses upload gambar
         $imageName = time() . '.' . $request->image->extension();
         $request->image->move(public_path('uploads'), $imageName);
         $imagePath = 'uploads/' . $imageName;
 
+        // Proses upload proposal (PDF) jika ada
+        $proposalPath = null;
+        if ($request->hasFile('proposal')) {
+            $proposalName = time() . '.' . $request->proposal->extension();
+            $request->proposal->move(public_path('proposals'), $proposalName);
+            $proposalPath = 'proposals/' . $proposalName;
+        }
+
+        // Menyimpan data event ke database
         $event = Event::create([
             'user_id'       => Auth::id(),
             'image'         => $imagePath,
+            'proposal'      => $proposalPath,
             'title'         => $request->title,
             'tgl_mulai'     => $request->tgl_mulai,
             'tgl_selesai'   => $request->tgl_selesai,
@@ -84,10 +102,13 @@ class EventController extends Controller
             'slug'          => Str::slug($request->title),
         ]);
 
+        // Menambahkan kategori yang dipilih ke event
         $event->kategoris()->attach($request->kategori_id);
 
+        // Memberikan notifikasi sukses
         Alert::toast('Event berhasil ditambahkan!', 'success')->autoClose(3000);
 
+        // Redirect ke halaman sesuai role pengguna
         return auth()->user()->can('view_admin')
         ? redirect()->route('admin.events.index')->with('success', 'Event berhasil ditambahkan!')
         : redirect()->route('events.index')->with('success', 'Event berhasil ditambahkan!');
@@ -101,11 +122,16 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event)
     {
+        $tglMulaiRule = auth()->user()->can('view_admin')
+        ? 'required|date'
+        : 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d');
+
         $request->validate([
             'title'         => 'required|string|max:255',
             'kategori_id'   => 'required|array|min:1',
             'kategori_id.*' => 'exists:kategoris,id',
-            'tgl_mulai'     => 'required|date|after_or_equal:' . now()->addWeek()->format('Y-m-d'),
+            'proposal'      => 'nullable|mimes:pdf|max:5120',
+            'tgl_mulai'     => $tglMulaiRule,
             'tgl_selesai'   => 'required|date|after_or_equal:tgl_mulai',
             'kota'          => 'required|string',
             'lokasi'        => 'required|string',
@@ -125,7 +151,18 @@ class EventController extends Controller
             $event->image = 'uploads/' . $imageName;
         }
 
-        $event->update($request->except(['kategori_id', 'image']));
+        if ($request->hasFile('proposal')) {
+            if ($event->proposal && file_exists(public_path($event->proposal))) {
+                unlink(public_path($event->proposal));
+            }
+
+            $proposalName = time() . '.' . $request->proposal->extension();
+            $request->proposal->move(public_path('proposals'), $proposalName);
+            $event->proposal = 'proposals/' . $proposalName;
+        }
+
+        $event->update($request->except(['kategori_id', 'image', 'proposal']));
+        $event->save();
         $event->kategoris()->sync($request->kategori_id);
 
         Alert::toast('Event berhasil diperbarui!', 'success')->autoClose(3000);
@@ -136,6 +173,10 @@ class EventController extends Controller
     {
         if ($event->image && file_exists(public_path($event->image))) {
             unlink(public_path($event->image));
+        }
+
+        if ($event->proposal && file_exists(public_path($event->proposal))) {
+            unlink(public_path($event->proposal));
         }
 
         $event->delete();

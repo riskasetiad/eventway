@@ -15,7 +15,16 @@ class PembayaranController extends Controller
      */
     public function index()
     {
-        $orders = \App\Models\Order::with('tiket')->get();
+        if (auth()->user()->hasRole('Admin')) {
+            // Admin bisa lihat semua order
+            $orders = Order::latest()->get();
+        } else {
+            // Penyelenggara hanya bisa lihat order dari event yang dia buat
+            $orders = Order::whereHas('event', function ($query) {
+                $query->where('user_id', auth()->id());
+            })->latest()->get();
+        }
+
         return view('admin.pembayaran.index', compact('orders'));
     }
 
@@ -100,7 +109,8 @@ class PembayaranController extends Controller
         $validated['snap_token']        = '';
         $validated['payment_deadline']  = now()->addMinutes(10); // Setel waktu batas pembayaran 10 menit setelah order
 
-        $order = \App\Models\Order::create($validated);
+        $validated['event_id'] = $tiket->event_id;
+        $order                 = \App\Models\Order::create($validated);
 
         // Cek jika sudah lewat 10 menit, ubah status menjadi gagal dan kembalikan stok tiket
         if (now()->greaterThan($order->payment_deadline)) {
@@ -181,9 +191,9 @@ class PembayaranController extends Controller
     {
         $order = Order::findOrFail($id);
         // Inisialisasi Midtrans
-        \Midtrans\Config::$serverKey    = config('midtrans.serverKey');
-        \Midtrans\Config::$isProduction = config('midtrans.isProduction');
-        \Midtrans\Config::$isSanitized  = config('midtrans.isSanitized');
+        \Midtrans\Config::$serverKey    = config('midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.is_production');
+        \Midtrans\Config::$isSanitized  = config('midtrans.is_sanitized');
         \Midtrans\Config::$is3ds        = config('midtrans.is3ds');
 
         $tiket = $order->tiket;
@@ -219,11 +229,24 @@ class PembayaranController extends Controller
 
     public function updateStatusTiket(Request $request, $id)
     {
-        $order               = Order::findOrFail($id);
+        $order = Order::findOrFail($id);
+
+        // Cek apakah user adalah admin
+        $isAdmin = auth()->user()->can('view_admin');
+
+        // Cek apakah user adalah pemilik event dari tiket yang dipesan
+        $isPenyelenggara = $order->event->user_id === auth()->id();
+
+        // Batasi akses
+        if (! $isAdmin && ! $isPenyelenggara) {
+            abort(403, 'Kamu tidak memiliki akses untuk mengubah status tiket ini.');
+        }
+
+        // Lanjut update
         $order->status_tiket = $request->status_tiket;
         $order->save();
 
-        return response()->json(['success' => true]);
+        return redirect()->back()->with('success', 'Status tiket berhasil diupdate.');
     }
 
     public function formCheckout(Request $request)
@@ -264,14 +287,15 @@ class PembayaranController extends Controller
 
         // 4. Simpan order ke DB
         $order = Order::create([
-            'nama_lengkap'  => $request->nama_lengkap,
-            'email'         => $request->email,
-            'tgl_lahir'     => $request->tgl_lahir,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'jumlah'        => $request->jumlah,
-            'tiket_id'      => $request->tiket_id,
-            'total_harga'   => $request->total_harga,
-            'status'        => 'pending',
+            'nama_lengkap'      => $request->nama_lengkap,
+            'email'             => $request->email,
+            'tgl_lahir'         => $request->tgl_lahir,
+            'jenis_kelamin'     => $request->jenis_kelamin,
+            'jumlah'            => $request->jumlah,
+            'tiket_id'          => $request->tiket_id,
+            'total_harga'       => $request->total_harga,
+            'event_id'          => $tikets->event_id,
+            'status_pembayaran' => 'pending',
         ]);
 
         // 5. Konfigurasi Midtrans
@@ -280,10 +304,11 @@ class PembayaranController extends Controller
         Config::$isSanitized  = config('midtrans.is_sanitized');
         Config::$is3ds        = config('midtrans.is3ds');
 
+        $order_id = 'ORDER-' . $order->id . '-' . uniqid();
         // 6. Buat data untuk Snap
         $snapPayload = [
             'transaction_details' => [
-                'order_id'     => 'INV-' . time(),
+                'order_id'     => $order_id,
                 'gross_amount' => $order->total_harga,
             ],
             'customer_details'    => [

@@ -6,4 +6,3 @@ return [
     'is_sanitized'  => true,
     'is3ds'         => true,
 ];
-    

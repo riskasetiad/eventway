@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use App\Models\Tiket;
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +18,7 @@ class HomeController extends Controller
 
         if ($user->hasRole('Admin')) {
             // Data dashboard untuk Admin
-            $penyelenggara = User::count();
+            $penyelenggara = User::role('User')->count();
 
             $eventBerlangsung = Event::where('tgl_mulai', '<=', now())
                 ->where('tgl_selesai', '>=', now())
@@ -28,7 +28,7 @@ class HomeController extends Controller
 
             $statistik = [
                 'total_event'   => Event::count(),
-                'event_terjual' => Tiket::where('status', 'terjual')->count(),
+                'event_terjual' => Order::where('status_pembayaran', 'berhasil')->count(),
             ];
 
             return view('admin.dashboard.admin', compact('penyelenggara', 'eventBerlangsung', 'eventSelesai', 'statistik'));
@@ -36,11 +36,27 @@ class HomeController extends Controller
 
         if ($user->hasRole('User')) {
             // Data dashboard untuk User
-            $jumlahEvent = Event::where('user_id', $user->id)->count();
+            $eventIds = Event::where('user_id', $user->id)
+                ->where('status', 'Approved')
+                ->pluck('id');
 
-            $eventIds        = Event::where('user_id', $user->id)->pluck('id');
-            $eventTerjual    = Tiket::whereIn('event_id', $eventIds)->where('status', 'terjual')->count();
-            $totalPendapatan = Tiket::whereIn('event_id', $eventIds)->where('status', 'terjual')->sum('harga');
+            $jumlahEvent = $eventIds->count();
+
+            $eventTerjual = Order::whereIn('tiket_id', function ($query) use ($eventIds) {
+                $query->select('id')
+                    ->from('tikets')
+                    ->whereIn('event_id', $eventIds);
+            })
+                ->where('status_pembayaran', 'berhasil')
+                ->count();
+
+            $totalPendapatan = Order::whereIn('tiket_id', function ($query) use ($eventIds) {
+                $query->select('id')
+                    ->from('tikets')
+                    ->whereIn('event_id', $eventIds);
+            })
+                ->where('status_pembayaran', 'berhasil')
+                ->sum('total_harga');
 
             $statistikPenjualan = [
                 'event_terjual'    => $eventTerjual,

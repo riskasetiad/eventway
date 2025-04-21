@@ -11,7 +11,7 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'image', 'title', 'kategori_id', 'tgl_mulai', 'tgl_selesai',
+        'user_id', 'image', 'proposal', 'title', 'kategori_id', 'tgl_mulai', 'tgl_selesai',
         'kota', 'lokasi', 'url_lokasi', 'deskripsi', 'waktu_mulai',
         'waktu_selesai', 'status', 'alasan', 'slug',
     ];
@@ -19,6 +19,11 @@ class Event extends Model
     public function penyelenggara()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 
     public function tikets()

@@ -22,6 +22,11 @@
             </div>
 
             <div class="mb-3">
+                <label for="proposal" class="form-label">Upload Proposal (PDF)</label>
+                <input type="file" class="form-control" name="proposal" accept="application/pdf" required>
+            </div>
+
+            <div class="mb-3">
                 <label for="title" class="form-label">Judul Event</label>
                 <input type="text" class="form-control" name="title" placeholder="Masukkan judul event" required>
             </div>

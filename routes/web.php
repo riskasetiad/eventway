@@ -60,11 +60,13 @@ Route::get('/uploads/{filename}', function ($filename) {
 */
 Route::prefix('admin')->middleware(['auth', 'can:view_admin'])->as('admin.')->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
+    Route::get('/pembayaran/{id}', [PembayaranController::class, 'show'])->name('pembayaran.show');
+
     Route::resource('kategori', KategoriController::class);
     Route::resource('events', EventController::class);
     Route::resource('tiket', TiketController::class);
     Route::resource('penyelenggara', PenyelenggaraController::class);
-    Route::resource('pembayaran', PembayaranController::class);
 
     Route::post('/pembayaran/{id}/bayar', [PembayaranController::class, 'bayar'])->name('pembayaran.bayar');
     Route::put('/pembayaran/{id}/status_tiket', [PembayaranController::class, 'updateStatusTiket'])->name('pembayaran.updateStatusTiket');
@@ -85,6 +87,10 @@ Route::prefix('admin')->middleware(['auth', 'can:view_admin'])->as('admin.')->gr
 */
 Route::middleware(['auth', 'can:view_user'])->group(function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::put('/pembayaran/{id}/status_tiket', [PembayaranController::class, 'updateStatusTiket'])->name('pembayaran.updateStatusTiket');
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
+    Route::get('/pembayaran/{id}', [PembayaranController::class, 'show'])->name('pembayaran.show');
+
 
     Route::middleware('can:category_read')->group(function () {
         Route::resource('kategori', KategoriController::class);
@@ -98,4 +104,5 @@ Route::middleware(['auth', 'can:view_user'])->group(function () {
     Route::middleware('can:ticket_read')->group(function () {
         Route::resource('tiket', TiketController::class);
     });
+
 });

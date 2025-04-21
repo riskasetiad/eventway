@@ -19,7 +19,8 @@
                             <img src="{{ asset('assets/images/logo-sm.png') }}" alt="" height="22">
                         </span> --}}
                         <span class="logo-lg">
-                            <img src="{{ asset('assets/images/logo-dark.png') }}" alt="" height="55" width="70">
+                            <img src="{{ asset('assets/images/logo-dark.png') }}" alt="" height="55"
+                                width="70">
                         </span>
                     </a>
                 </div>
@@ -27,7 +28,7 @@
                 <ul id="side-menu">
                     <!-- Dashboard -->
                     <li>
-                        <a href="{{ route('admin.home') }}">
+                        <a href="{{ route('home') }}">
                             <i class="fi fi-rs-home"></i>
                             <span> Dashboard </span>
                         </a>
@@ -64,6 +65,16 @@
                         </li>
                     @endcan
 
+                    @can('ticket_read')
+                        <li>
+                            <a
+                                href="{{ auth()->user()->hasRole('Admin') ? route('admin.pembayaran.index') : route('pembayaran.index') }}">
+                                <i class="fi fi-rs-receipt"></i>
+                                <span> Pemesanan </span>
+                            </a>
+                        </li>
+                    @endcan
+
                     <!-- Menu Khusus Admin -->
                     @if (auth()->user()->hasRole('Admin'))
                         <li>
@@ -73,12 +84,6 @@
                             </a>
                         </li>
 
-                        <li>
-                            <a href="{{ route('admin.pembayaran.index') }}">
-                                <i class="fi fi-rs-memo-circle-check"></i>
-                                <span> Pembayaran </span>
-                            </a>
-                        </li>
 
                         <li>
                             <a href="{{ route('admin.penyelenggara.index') }}">
@@ -88,7 +93,7 @@
                         </li>
                         <li>
                             <a href="{{ route('admin.pesan.index') }}">
-                                <i class="fi fi-rs-member-list"></i>
+                                <i class="fi fi-rs-messages"></i>
                                 <span> Pesan </span>
                             </a>
                         </li>

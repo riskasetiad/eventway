@@ -11,6 +11,7 @@
                 <tr>
                     <th>#</th>
                     <th>Gambar</th>
+                    <th>Proposal</th>
                     <th>Judul</th>
                     <th>Kategori</th>
                     <th>Status</th>
@@ -24,6 +25,13 @@
                         <td>
                             <img src="{{ asset($event->image) }}" alt="Gambar Event"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+                        </td>
+                        <td>
+                            @if ($event->proposal)
+                                <a href="{{ asset($event->proposal) }}" target="_blank">Lihat Proposal</a>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                         </td>
                         <td>{{ $event->title }}</td>
                         <td>
@@ -57,13 +65,13 @@
                                     data-bs-target="#detailModal{{ $event->id }}">
                                     Detail
                                 </button>
-
-                                 <a href="{{ auth()->user()->can('view_admin') ? route('admin.events.edit') : route('events.edit') }}" class="btn btn-sm btn-primary">
+                                <a href="{{ route('events.edit', $event) }}" class="btn btn-sm btn-primary">
                                     Edit
                                 </a>
 
-                                <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST"
-                                    class="delete-form">
+                                <form
+                                    action="{{ auth()->user()->can('view_admin') ? route('admin.events.destroy', $event->id) : route('events.destroy', $event->id) }}"
+                                    method="POST" class="delete-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-sm btn-danger btn-delete"
